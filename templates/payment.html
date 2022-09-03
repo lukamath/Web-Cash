@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>{% block title %} Add a New Record {% endblock %}</h1>
+
+        <select name="time_course" id="time_course">
+            <option value="Mattino">Mattino</option>
+            <option value="Pomeriggio">Pomeriggio</option>
+            <option value="Sera">Sera</option>
+        </select>
+        <br><br>
+{% endblock %}
