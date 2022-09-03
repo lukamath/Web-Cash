@@ -38,3 +38,7 @@ class Customer(db.Model):
 @app.route('/')
 def index():
 	return render_template('index.html')
+
+@app.route('/payment')
+def add_payment():
+	return render_template('payment.html')
