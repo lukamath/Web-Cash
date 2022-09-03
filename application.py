@@ -33,12 +33,17 @@ class Customer(db.Model):
 	name=db.Column(db.String(25), nullable=False)
 	surname=db.Column(db.String(25), nullable=False)
 	tax_code=db.Column(db.String(16), nullable=False)
+	course_id=db.Column(db.Integer)
 	receipts=db.relationship('Receipt',backref='customer', lazy=True)
 
 @app.route('/')
 def index():
 	return render_template('index.html')
 
-@app.route('/payment')
-def add_payment():
-	return render_template('payment.html')
+@app.route('/payment',methods=['GET','POST'])
+def add_payment(customer_id):
+	if request.method == 'POST':
+		x=customer_id
+	else:
+		customer_id=1	
+	return render_template('add_payment.html', customer_id=customer_id)
