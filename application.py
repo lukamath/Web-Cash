@@ -25,7 +25,7 @@ class Receipt(db.Model):
 
 class Payment(db.Model):
 	id=db.Column(db.Integer, primary_key=True)
-	receipt_id=db.Column(db.Integer, db.ForeignKey('receipt.id'))
+	#receipt_id=db.Column(db.Integer, db.ForeignKey('receipt.id'))
 	receipt=db.relationship('Receipt',backref='payment')
 
 class Customer(db.Model):
@@ -36,9 +36,23 @@ class Customer(db.Model):
 	course_id=db.Column(db.Integer)
 	receipts=db.relationship('Receipt',backref='customer', lazy=True)
 
-@app.route('/')
+@app.route('/',methods=['GET','POST'])
 def index():
-	return render_template('index.html')
+	if request.method == 'POST':
+		username = request.form['username']
+		password = request.form['password']
+		if not username:
+			flash('username obbligatorio!')
+		elif not password:
+			flash('password obbligatoria!')
+		else:
+			user=User.query.filter_by(username=username, password=password).first()
+			if user:
+				return render_template('search.html')
+		flash('Utente non trovato. Verifica le tue credenziali')
+		return render_template('index.html')
+	else:
+		return render_template('index.html')
 
 @app.route('/payment',methods=['GET','POST'])
 def add_payment(customer_id):
@@ -47,3 +61,7 @@ def add_payment(customer_id):
 	else:
 		customer_id=1	
 	return render_template('add_payment.html', customer_id=customer_id)
+
+@app.route('/search', methods=['GET','POST'])
+def search():
+	return render_template('search.html')
