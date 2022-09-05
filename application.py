@@ -65,3 +65,40 @@ def add_payment(customer_id):
 @app.route('/search', methods=['GET','POST'])
 def search():
 	return render_template('search.html')
+
+
+
+#API
+@app.route('/adduser', methods=['GET','POST'])
+def add_user():
+	if request.method == 'POST':
+		name=request.form['name']
+		surname=request.form['surname']
+		username=request.form['username']
+		password=request.form['password']
+		repeatpassword=request.form['repeatpassword']
+		if not username:
+			flash('username obbligatorio!')
+		elif not password:
+			flash('password obbligatoria!')
+		elif not name:
+			flash('nome obbligatorio!')
+		elif not surname:
+			flash('cognome obbligatorio!')
+		elif password!=repeatpassword:
+			flash('le password non corrispondono!')
+		else:
+			checkuser=User.query.filter_by(username=username).first()
+			if checkuser:
+				flash('Utente gia'' presente')
+			user=User(
+				name=name,
+				surname=surname,
+				username=username, 
+				password=password)
+			db.session.add(user)
+			db.session.commit()
+			return redirect(url_for('index'))
+		return render_template('newuser.html') #I land again on newuser page if conditions are not all ok
+	else:
+		return render_template('newuser.html')
