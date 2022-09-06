@@ -1,6 +1,7 @@
-from flask import Flask, request, render_template, url_for, flash, redirect, session
+from flask import Flask, request, render_template, url_for, flash, redirect, session, send_file
 from flask_sqlalchemy import SQLAlchemy
 from datetime import date, datetime
+import pandas as pd
 
 app=Flask(__name__)
 
@@ -102,3 +103,35 @@ def add_user():
 		return render_template('newuser.html') #I land again on newuser page if conditions are not all ok
 	else:
 		return render_template('newuser.html')
+
+
+#===================== test Export DB in Excel =====================
+
+UPLOAD_FOLDER = 'C:/Users/casa/Downloads'
+app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
+
+def to_dict(row):
+    if row is None:
+        return None
+
+    rtn_dict = dict()
+    keys = row.__table__.columns.keys()
+    for key in keys:
+        rtn_dict[key] = getattr(row, key)
+    return rtn_dict
+
+
+@app.route('/excel', methods=['GET', 'POST'])
+def exportexcel():
+    data = User.query.all()
+    data_list = [to_dict(item) for item in data]
+    df = pd.DataFrame(data_list)
+    filename = app.config['UPLOAD_FOLDER']+"/userlist.xlsx"
+    print("Filename: "+ filename)
+
+    writer = pd.ExcelWriter(filename)
+    df.to_excel(writer, sheet_name='kaz01')
+    writer.save()
+
+    return redirect(url_for('add_user'))
+
