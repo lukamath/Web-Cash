@@ -2,6 +2,8 @@ from flask import Flask, request, render_template, url_for, flash, redirect, ses
 from flask_sqlalchemy import SQLAlchemy
 from datetime import date, datetime
 import pandas as pd
+import openpyxl
+import os
 
 app=Flask(__name__)
 
@@ -129,9 +131,35 @@ def exportexcel():
     filename = app.config['UPLOAD_FOLDER']+"/userlist.xlsx"
     print("Filename: "+ filename)
 
-    writer = pd.ExcelWriter(filename)
+    writer = pd.ExcelWriter(filename, engine='openpyxl',index_col=None)
     df.to_excel(writer, sheet_name='kaz01')
     writer.save()
 
     return redirect(url_for('add_user'))
 
+
+#https://www.tutorialexample.com/python-pandas-append-data-to-excel-a-step-guide-python-pandas-tutorial/
+@app.route('/newrow', methods=['GET','POST'])
+def new_row():
+	
+	#excel_name = app.config['UPLOAD_FOLDER']+"/userlist03.xlsx"
+	excel_name ='C:/Users/casa/Downloads/userlist.xlsx'
+
+	data=User.query.order_by(User.id.desc()).first()
+	data_list = [to_dict(data)]
+	df = pd.DataFrame(data_list, index= None)
+	
+	df_source = None
+	if os.path.exists(excel_name):
+		data_list=pd.read_excel('C:/Users/casa/Downloads/userlist.xlsx',engine='openpyxl',index_col=None)
+		df_source = pd.DataFrame(data_list)
+	if df_source is not None:
+		df_dest = df_source.append(df)
+	else:
+		df_dest = df
+
+	writer=pd.ExcelWriter(excel_name)
+	df_dest.to_excel(writer, sheet_name='kaz02')
+	writer.save()
+
+	return redirect(url_for('add_user'))
