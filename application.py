@@ -29,7 +29,7 @@ class Receipt(db.Model):
 class Payment(db.Model):
 	id=db.Column(db.Integer, primary_key=True)
 	#receipt_id=db.Column(db.Integer, db.ForeignKey('receipt.id'))
-	#customer_id=db.Column(db.Integer, db.ForeignKey('customer.id'))
+	customer_id=db.Column(db.Integer, db.ForeignKey('customer.id'))
 	receipt=db.relationship('Receipt',backref='payment')
 
 class Customer(db.Model):
@@ -44,7 +44,7 @@ class Customer(db.Model):
 	nation=db.Column(db.String)
 	course_id=db.Column(db.Integer)
 	receipts=db.relationship('Receipt',backref='customer', lazy=True)
-	#payments=db.relationship('Payment',backref='customer')
+	payments=db.relationship('Payment',backref='customer')
 
 @app.route('/',methods=['GET','POST'])
 def index():
@@ -58,7 +58,7 @@ def index():
 		else:
 			user=User.query.filter_by(username=username, password=password).first()
 			if user:
-				return render_template('search.html')
+				return redirect(url_for('list_students'))
 		flash('Utente non trovato. Verifica le tue credenziali')
 		return render_template('index.html')
 	else:
@@ -187,8 +187,14 @@ def add_customer():
 		db.session.add(customer)
 		db.session.commit()
 		
-		customers=Customer.query.all()
-		return render_template('liststudents.html', customers=customers)
-	
+		#customers=Customer.query.all()
+		#return render_template('liststudents.html', customers=customers)
+		return redirect(url_for('list_students'))
+
 	else:
 		return render_template('newcustomer.html')
+
+@app.route('/liststudents')
+def list_students():
+	customers=Customer.query.all()
+	return render_template('liststudents.html', customers=customers)

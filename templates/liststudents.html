@@ -3,7 +3,9 @@
 {% block content %}
 
 <div class='course'>
+       <h1>Ricerca Studente</h1>
         <table class='list-tab'>
+              <tr><th>ID Corso</th><th>Cognome</th><th>Nome</th><th>Codice Fiscale</th><th> --- </th></tr>
         {% for customer in customers %}     
             <tr>
                 <td><b>{{ customer['course_id'] }}</td><td>{{ customer['surname'] }}</td><td>{{ customer['name'] }}</td>                
