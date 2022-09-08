@@ -1,0 +1,17 @@
+{% extends 'base_login.html' %}
+
+{% block content %}
+
+<div class='course'>
+        <table class='list-tab'>
+        {% for customer in customers %}     
+            <tr>
+                <td><b>{{ customer['course_id'] }}</td><td>{{ customer['surname'] }}</td><td>{{ customer['name'] }}</td>                
+                <td>{{ customer['tax_code']}}</td>
+                <td><a href="#">Pagamenti</a></td>
+            </tr>
+        {% endfor %} 
+        </table>
+</div>
+
+{% endblock %}

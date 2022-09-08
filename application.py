@@ -29,6 +29,7 @@ class Receipt(db.Model):
 class Payment(db.Model):
 	id=db.Column(db.Integer, primary_key=True)
 	#receipt_id=db.Column(db.Integer, db.ForeignKey('receipt.id'))
+	#customer_id=db.Column(db.Integer, db.ForeignKey('customer.id'))
 	receipt=db.relationship('Receipt',backref='payment')
 
 class Customer(db.Model):
@@ -36,8 +37,14 @@ class Customer(db.Model):
 	name=db.Column(db.String(25), nullable=False)
 	surname=db.Column(db.String(25), nullable=False)
 	tax_code=db.Column(db.String(16), nullable=False)
+	address=db.Column(db.String(40))
+	zip_code=db.Column(db.String(10))
+	city=db.Column(db.String(25))
+	prov_state=db.Column(db.String(2))
+	nation=db.Column(db.String)
 	course_id=db.Column(db.Integer)
 	receipts=db.relationship('Receipt',backref='customer', lazy=True)
+	#payments=db.relationship('Payment',backref='customer')
 
 @app.route('/',methods=['GET','POST'])
 def index():
@@ -109,7 +116,7 @@ def add_user():
 
 #===================== test Export DB in Excel =====================
 
-UPLOAD_FOLDER = 'C:/Users/casa/Downloads'
+UPLOAD_FOLDER = 'D:/Luka/Programming/Python/WebCash/Downloads'
 app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
 
 def to_dict(row):
@@ -131,7 +138,7 @@ def exportexcel():
     filename = app.config['UPLOAD_FOLDER']+"/userlist.xlsx"
     print("Filename: "+ filename)
 
-    writer = pd.ExcelWriter(filename, engine='openpyxl',index_col=None)
+    writer = pd.ExcelWriter(filename, engine='openpyxl')
     df.to_excel(writer, sheet_name='kaz01')
     writer.save()
 
@@ -143,7 +150,7 @@ def exportexcel():
 def new_row():
 	
 	#excel_name = app.config['UPLOAD_FOLDER']+"/userlist03.xlsx"
-	excel_name ='C:/Users/casa/Downloads/userlist.xlsx'
+	excel_name ='/Downloads/userlist.xlsx'
 
 	data=User.query.order_by(User.id.desc()).first()
 	data_list = [to_dict(data)]
@@ -151,7 +158,7 @@ def new_row():
 	
 	df_source = None
 	if os.path.exists(excel_name):
-		data_list=pd.read_excel('C:/Users/casa/Downloads/userlist.xlsx',engine='openpyxl',index_col=None)
+		data_list=pd.read_excel('/Downloads/userlist.xlsx',engine='openpyxl',index_col=None)
 		df_source = pd.DataFrame(data_list)
 	if df_source is not None:
 		df_dest = df_source.append(df)
@@ -163,3 +170,25 @@ def new_row():
 	writer.save()
 
 	return redirect(url_for('add_user'))
+
+@app.route('/addcustomer', methods=['GET','POST'])
+def add_customer():
+	if request.method=='POST':
+		name=request.form['name']
+		surname=request.form['surname']
+		tax_code=request.form['tax_code']
+		address=request.form['address']
+		zip_code=request.form['zip_code']
+		city=request.form['city']
+		prov_state=request.form['prov_state']
+		nation=request.form['nation']
+		course_id=request.form['course_id']
+		customer=Customer(name=name, surname=surname, tax_code=tax_code,address=address,zip_code=zip_code,city=city, prov_state=prov_state,nation=nation, course_id=course_id)
+		db.session.add(customer)
+		db.session.commit()
+		
+		customers=Customer.query.all()
+		return render_template('liststudents.html', customers=customers)
+	
+	else:
+		return render_template('newcustomer.html')

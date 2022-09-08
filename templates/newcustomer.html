@@ -1,0 +1,46 @@
+{% extends 'base_login.html' %}
+
+{% block content %}
+<div align='center'>
+	<h1>{% block title %} Nuovo Studente {% endblock %}</h1>
+		<form method="post">
+			<input type="text" name="name"
+               placeholder="Nome"
+               value="{{ request.form['name'] }}"></input>
+	        <br><br>
+	        <input type="text" name="surname"
+	               placeholder="Cognome"
+	               value="{{ request.form['surname'] }}"></input>
+	        <br><br>
+	        <input type="text" name="tax_code"
+	               placeholder="Codice Fiscale"
+	               value="{{ request.form['tax_code'] }}" maxlength="16"></input>
+	        <br><br>
+	        <input type="text" name="address"
+	               placeholder="Via Indirizzo, numero"
+	               value="{{ request.form['address'] }}"></input>
+	        <br><br>
+	        <input type="text" name="zip_code"
+	               placeholder="CAP"
+	               value="{{ request.form['zip_code'] }}"></input>
+	        <br><br>
+	        <input type="text" name="city"
+	               placeholder="citta"
+	               value="{{ request.form['city'] }}"></input>
+	        <br><br>
+	       	<input type="text" name="prov_state"
+	               placeholder="Provincia"
+	               value="{{ request.form['prov_state'] }}" maxlength="2"></input>
+	        <br><br>
+	        <input type="text" name="nation"
+	               placeholder="Nazione"
+	               value="{{ request.form['nation'] }}"></input>
+	        <br><br>  
+	        <input type="number" name="course_id"
+	               placeholder="ID corso"
+	               value="{{ request.form['course_id'] }}"></input>
+	        <br><br>  
+	        <button type="submit">Aggiungi</button>
+		</form>
+</div>
+{% endblock %}
