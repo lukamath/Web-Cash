@@ -3,8 +3,10 @@
 {% block content %}
 
 <h1>{% block title %} Aggiungi Pagamento {% endblock %}</h1>
-{{ customer_id}}
-<form method="post">
+<div class=cust-details>{{customer.id}}</div><div class=cust-details>{{customer.name}}</div>
+<br><br><br>  
+<div>
+    <form method="post">
         <select name="metodo di pagamento" id="payment-method">
             <option value="Contante">Contante</option>
             <option value="Bancomat">Bancomat</option>
@@ -12,6 +14,6 @@
         </select>
         <br><br><br>    
         <button type="submit">Submit</button>
-</form>
-
+    </form>
+</div>
 {% endblock %}

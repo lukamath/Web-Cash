@@ -78,11 +78,12 @@ def index():
 
 @app.route('/addpayment/<customer_id>',methods=['GET','POST'])
 def add_payment(customer_id):
+	customer=Customer.query.filter_by(id=customer_id).first()
 	if request.method == 'POST':
 		x=1
 	else:
 		print("customer id: " + customer_id)
-		return render_template('newpayment.html',customer_id=customer_id)
+		return render_template('newpayment.html',customer=customer)
 
 @app.route('/search', methods=['GET','POST'])
 def search():
