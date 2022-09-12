@@ -18,6 +18,7 @@ class User(db.Model):
 	surname=db.Column(db.String(25), nullable=False)
 	username=db.Column(db.String(13),nullable=False)
 	password=db.Column(db.String(13),nullable=False)
+	payments=db.relationship('Payment', backref='user')
 
 class Receipt(db.Model):
 	id=db.Column(db.Integer, primary_key=True)
@@ -28,9 +29,20 @@ class Receipt(db.Model):
 
 class Payment(db.Model):
 	id=db.Column(db.Integer, primary_key=True)
-	#receipt_id=db.Column(db.Integer, db.ForeignKey('receipt.id'))
+	cash001=db.Column(db.Integer)
+	cash002=db.Column(db.Integer)
+	cash005=db.Column(db.Integer)
+	cash010=db.Column(db.Integer)
+	cash020=db.Column(db.Integer)
+	cash050=db.Column(db.Integer)
+	cash100=db.Column(db.Integer)
+	cash200=db.Column(db.Integer)
+	payd_card=db.Column(db.Integer)
+	type_card=db.Column(db.String)
+	payd_bank=db.Column(db.Integer)
 	customer_id=db.Column(db.Integer, db.ForeignKey('customer.id'))
 	receipt=db.relationship('Receipt',backref='payment')
+	user_id=db.Column(db.Integer, db.ForeignKey('user.id'))
 
 class Customer(db.Model):
 	id=db.Column(db.Integer, primary_key=True)
@@ -64,13 +76,13 @@ def index():
 	else:
 		return render_template('index.html')
 
-@app.route('/payment',methods=['GET','POST'])
+@app.route('/addpayment/<customer_id>',methods=['GET','POST'])
 def add_payment(customer_id):
 	if request.method == 'POST':
-		x=customer_id
+		x=1
 	else:
-		customer_id=1	
-	return render_template('add_payment.html', customer_id=customer_id)
+		print("customer id: " + customer_id)
+		return render_template('newpayment.html',customer_id=customer_id)
 
 @app.route('/search', methods=['GET','POST'])
 def search():
