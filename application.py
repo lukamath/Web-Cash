@@ -81,6 +81,7 @@ def add_payment(customer_id):
 	customer=Customer.query.filter_by(id=customer_id).first()
 	if request.method == 'POST':
 		x=1
+		return render_template('newpayment.html',customer=customer)
 	else:
 		print("customer id: " + customer_id)
 		return render_template('newpayment.html',customer=customer)
