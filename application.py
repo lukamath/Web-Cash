@@ -25,10 +25,22 @@ class Receipt(db.Model):
 	customer_id=db.Column(db.Integer, db.ForeignKey('customer.id'))
 	payment_id=db.Column(db.Integer, db.ForeignKey('payment.id'))
 	date_issue=db.Column(db.DateTime, nullable=False)
-	total=db.Column(db.Numeric, nullable=False)
+	description=db.Column(db.String)
 
 class Payment(db.Model):
 	id=db.Column(db.Integer, primary_key=True)
+	total=db.Column(db.Numeric, nullable=False)
+	paym_card=db.Column(db.Integer)
+	type_card=db.Column(db.String)
+	paym_bank=db.Column(db.Integer)
+	customer_id=db.Column(db.Integer, db.ForeignKey('customer.id'))
+	receipt=db.relationship('Receipt',backref='payment')
+	cash=db.relationship('Cash',backref='payment')
+	user_id=db.Column(db.Integer, db.ForeignKey('user.id'))
+
+class Cash(db.Model):
+	id=db.Column(db.Integer, primary_key=True)
+	date_collection=db.Column(db.DateTime, nullable=False)
 	cash001=db.Column(db.Integer)
 	cash002=db.Column(db.Integer)
 	cash005=db.Column(db.Integer)
@@ -37,11 +49,9 @@ class Payment(db.Model):
 	cash050=db.Column(db.Integer)
 	cash100=db.Column(db.Integer)
 	cash200=db.Column(db.Integer)
-	payd_card=db.Column(db.Integer)
-	type_card=db.Column(db.String)
-	payd_bank=db.Column(db.Integer)
-	customer_id=db.Column(db.Integer, db.ForeignKey('customer.id'))
-	receipt=db.relationship('Receipt',backref='payment')
+	vault=db.Column(db.Integer)
+	deposit=db.Column(db.Integer)
+	payment_id=db.Column(db.Integer, db.ForeignKey('payment.id'))
 	user_id=db.Column(db.Integer, db.ForeignKey('user.id'))
 
 class Customer(db.Model):
