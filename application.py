@@ -107,7 +107,7 @@ def add_payment(customer_id):
 				)
 			db.session.add(payment)
 			db.session.commit()
-			payments=Payment.query.all()
+			payments=Payment.query.filter_by(customer_id=customer_id).all()
 			return render_template('listpayments.html',payments=payments)
 	else:
 		print("customer id: " + customer_id)
@@ -239,3 +239,9 @@ def add_customer():
 def list_students():
 	customers=Customer.query.all()
 	return render_template('liststudents.html', customers=customers)
+
+
+@app.route('/listpayments')
+def list_payments():
+	payments=Payment.query.all()
+	return render_template('listpayments.html', payments=payments)
