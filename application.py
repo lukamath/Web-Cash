@@ -90,8 +90,25 @@ def index():
 def add_payment(customer_id):
 	customer=Customer.query.filter_by(id=customer_id).first()
 	if request.method == 'POST':
-		x=1
-		return render_template('newpayment.html',customer=customer)
+		description=request.form['description']
+		payment_method=request.form['payment-method']
+		payment_quote=request.form['payment-quote']
+		if not description:
+			flash('description obbligatorio!')
+		elif not payment_method:
+			flash('payment-method obbligatoria!')
+		elif not payment_quote:
+			flash('payment-quote obbligatorio!')
+		else:
+			payment=Payment(
+				total=payment_quote,
+				type_card=payment_method,
+				customer_id=customer_id
+				)
+			db.session.add(payment)
+			db.session.commit()
+			payments=Payment.query.all()
+			return render_template('listpayments.html',payments=payments)
 	else:
 		print("customer id: " + customer_id)
 		return render_template('newpayment.html',customer=customer)

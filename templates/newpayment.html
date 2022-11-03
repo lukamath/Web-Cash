@@ -7,8 +7,9 @@
 <br><br><br>  
 <div>
     <form method="post">
+        <input type="hidden" id="customer_id" name="customer_id" value={{customer.id}}>
         <label for="description">Descrizione</label><br>
-        <select name="descrizione" id="description"><br>
+        <select name="description" id="description"><br>
             <option value="Iscrizione">Iscrizione</option>
             <option value="InizioCorso">Inizio Corso</option>
             <option value="Rata">Rata</option>
@@ -16,7 +17,7 @@
             <option value="Ricarica">Ricarica</option>
         </select><br>
         <label for="payment-method">Metodo di pagamento</label><br>
-        <select name="metodo di pagamento" id="payment-method">
+        <select name="payment-method" id="payment-method">
             <option value="Contante">Contante</option>
             <option value="Bancomat">Bancomat</option>
             <option value="Visa">Visa</option>

@@ -1,0 +1,17 @@
+{% extends 'base_login.html' %}
+
+{% block content %}
+
+<div class='payment'>
+       <h1>Ricerca Studente</h1>
+        <table class='list-tab'>
+              <tr><th>ID Customer</th><th>Tipo</th><th>Totale</th>
+        {% for payment in payments %}     
+            <tr>
+                <td><b>{{ payment['customer_id'] }}</td><td>{{ payment['type_card'] }}</td><td>{{ payment['total'] }}</td>                
+            </tr>
+        {% endfor %} 
+        </table>
+</div>
+
+{% endblock %}
