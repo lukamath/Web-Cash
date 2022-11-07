@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class='receipt'>
+       <h1>Ricevute Totali</h1>
+        <table class='list-tab'>
+              <tr><th>ID Ricevuta</th><th>ID Customer</th><th>Id Pagamento</th><th>Description</th><th>Data</th>
+        {% for receipt in receipts %}     
+            <tr>
+                <td><b>{{ receipt['id'] }}</td><td>{{ receipt['customer_id'] }}</td><td>{{ receipt['payment_id'] }}</td><td>{{ receipt['description'] }}</td>
+                <td>{{ receipt['date_issue'] }}</td>                
+            </tr>
+        {% endfor %} 
+        </table>
+</div>
+
+{% endblock %}

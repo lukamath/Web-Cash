@@ -5,10 +5,10 @@
 <div class='payment'>
        <h1>Pagamenti Studente</h1>
         <table class='list-tab'>
-              <tr><th>ID Customer</th><th>Tipo</th><th>Totale</th>
+              <tr><th>ID Customer</th><th>Tipo</th><th>Id Receipt</th><th>Description</th><th>Totale</th>
         {% for payment in payments %}     
             <tr>
-                <td><b>{{ payment['customer_id'] }}</td><td>{{ payment['type_card'] }}</td><td>{{ payment['total'] }}</td>                
+                <td><b>{{ payment['customer_id'] }}</td><td>{{ payment['type_card'] }}</td><td>{{ payment['receipt'] }}</td><td> {% for r in payment['receipt'] %} {{r.description}} {% endfor %}</td><td>{{ payment['total'] }}</td>                
             </tr>
         {% endfor %} 
         </table>

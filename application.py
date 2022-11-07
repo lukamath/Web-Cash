@@ -107,6 +107,14 @@ def add_payment(customer_id):
 				)
 			db.session.add(payment)
 			db.session.commit()
+			receipt=Receipt(
+				customer_id=payment.customer_id,
+				payment_id=payment.id,
+				date_issue=date.today(),
+				description=description
+				)
+			db.session.add(receipt)
+			db.session.commit()
 			payments=Payment.query.filter_by(customer_id=customer_id).all()
 			return render_template('listpayments.html',payments=payments)
 	else:
@@ -245,3 +253,8 @@ def list_students():
 def list_payments():
 	payments=Payment.query.all()
 	return render_template('listpayments.html', payments=payments)
+
+@app.route('/listreceipts')
+def list_receipts():
+	receipts=Receipt.query.all()
+	return render_template('listreceipts.html', receipts=receipts)
