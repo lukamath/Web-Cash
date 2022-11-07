@@ -1,11 +1,16 @@
 from flask import Flask, request, render_template, url_for, flash, redirect, session, send_file
 from flask_sqlalchemy import SQLAlchemy
+from flask_session import Session
 from datetime import date, datetime
 import pandas as pd
 import openpyxl
 import os
 
 app=Flask(__name__)
+
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 app.config['SECRET_KEY']='uOzPG137aJNoq2bBJ4b9P81DY5vCiRXj'
 
@@ -49,8 +54,8 @@ class Cash(db.Model):
 	cash050=db.Column(db.Integer)
 	cash100=db.Column(db.Integer)
 	cash200=db.Column(db.Integer)
-	vault=db.Column(db.Integer)
-	deposit=db.Column(db.Integer)
+	vault=db.Column(db.Integer)  	#for user cash sheet
+	deposit=db.Column(db.Integer)	#for admin withdraw
 	payment_id=db.Column(db.Integer, db.ForeignKey('payment.id'))
 	user_id=db.Column(db.Integer, db.ForeignKey('user.id'))
 
@@ -80,6 +85,8 @@ def index():
 		else:
 			user=User.query.filter_by(username=username, password=password).first()
 			if user:
+				session["user"] = username
+				session["user_id"] = user.id
 				return redirect(url_for('list_students'))
 		flash('Utente non trovato. Verifica le tue credenziali')
 		return render_template('index.html')
@@ -116,6 +123,10 @@ def add_payment(customer_id):
 			db.session.add(receipt)
 			db.session.commit()
 			payments=Payment.query.filter_by(customer_id=customer_id).all()
+			if payment_method=='Contante':
+				flash ('sti kaz')
+				print('stikax')
+				add_cash(payment, receipt, customer)
 			return render_template('listpayments.html',payments=payments)
 	else:
 		print("customer id: " + customer_id)
@@ -248,7 +259,6 @@ def list_students():
 	customers=Customer.query.all()
 	return render_template('liststudents.html', customers=customers)
 
-
 @app.route('/listpayments')
 def list_payments():
 	payments=Payment.query.all()
@@ -258,3 +268,49 @@ def list_payments():
 def list_receipts():
 	receipts=Receipt.query.all()
 	return render_template('listreceipts.html', receipts=receipts)
+
+@app.route('/listusers')
+def list_users():
+	users=User.query.all()
+	return render_template('listusers.html', users=users)
+
+
+#======================== xxxxxxxxxxxx	========================#
+@app.route('/addcash',methods=['GET','POST'])
+def add_cash(payment, receipt, customer):
+	flash('add pieces of cash here -->' + str(session.get('user_id')) + " - " + session.get('user') + " --> payment id: " + str(payment.id))
+	if request.method=='POST':
+		flash('sono in POST')
+		cash001 = request.form['cash001']
+		cash002 = request.form['cash002']
+		cash005 = request.form['cash005']
+		cash010 = request.form['cash010']
+		cash020 = request.form['cash020']
+		cash050 = request.form['cash050']
+		cash100 = request.form['cash100']
+		cash200 = request.form['cash200']
+		vault=0
+		deposit=0
+		payment_id=payment_id
+		user_id=session.get('user_id')
+		cash=Cash(
+			cash001=cash001,
+			cash002=cash002,
+			cash005=cash005,
+			cash010=cash010,
+			cash020=cash020,
+			cash050=cash050,
+			cash100=cash100,
+			cash200=cash200,
+			vault=vault,
+			deposit=deposit,
+			payment_id=payment_id,
+			user_id=user_id
+			)
+		db.session.add(cash)
+		db.session.commit()
+		cashes=Cash.query.all()
+		return render_template('listcashes.html',cashes=cashes)
+	else:
+		cashes=Cash.query.all()
+		return render_template('newcash.html',payment=payment, receipt=receipt, customer=customer)
