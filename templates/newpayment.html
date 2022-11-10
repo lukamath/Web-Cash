@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>{% block title %} Aggiungi Pagamento {% endblock %}</h1>
+<div class=cust-details>{{customer.id}}</div><div class=cust-details>{{customer.name}}</div>
+<br><br><br>  
+<div>
+    <form method="post">
+        <input type="hidden" id="customer_id" name="customer_id" value={{customer.id}}>
+        <label for="description">Descrizione</label><br>
+        <select name="description" id="description"><br>
+            <option value="Iscrizione">Iscrizione</option>
+            <option value="InizioCorso">Inizio Corso</option>
+            <option value="Rata">Rata</option>
+            <option value="Kit">Kit</option>
+            <option value="Ricarica">Ricarica</option>
+        </select><br>
+        <label for="payment-method">Metodo di pagamento</label><br>
+        <select name="payment-method" id="payment-method">
+            <option value="Contante">Contante</option>
+            <option value="Bancomat">Bancomat</option>
+            <option value="Visa">Visa</option>
+        </select><br>
+        <label for="payment-quote">Importo</label><br>
+        <input type="number" name="payment-quote" min=1>
+        <br><br>    
+        <button type="submit">Submit</button>
+    </form>
+</div>
+<br><br>
+
+<div class='payment'>
+       <h1>Pagamenti Studente</h1>
+        <table class='list-tab'>
+              <tr><th>ID Customer</th><th>Tipo</th><th>Id Receipt</th><th>Description</th><th>Totale</th>
+        {% for payment in payments %}     
+            <tr>
+                <td><b>{{ payment['customer_id'] }}</td><td>{{ payment['type_card'] }}</td><td>{{ payment['receipt'] }}</td><td> {% for r in payment['receipt'] %} {{r.description}} {% endfor %}</td><td>{{ payment['total'] }}</td>                
+            </tr>
+        {% endfor %} 
+        </table>
+</div>
+
+{% endblock %}

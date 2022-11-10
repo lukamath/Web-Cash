@@ -1,11 +1,16 @@
 from flask import Flask, request, render_template, url_for, flash, redirect, session, send_file
 from flask_sqlalchemy import SQLAlchemy
+from flask_session import Session
 from datetime import date, datetime
 import pandas as pd
 import openpyxl
 import os
 
 app=Flask(__name__)
+
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 app.config['SECRET_KEY']='uOzPG137aJNoq2bBJ4b9P81DY5vCiRXj'
 
@@ -18,19 +23,41 @@ class User(db.Model):
 	surname=db.Column(db.String(25), nullable=False)
 	username=db.Column(db.String(13),nullable=False)
 	password=db.Column(db.String(13),nullable=False)
+	payments=db.relationship('Payment', backref='user')
 
 class Receipt(db.Model):
 	id=db.Column(db.Integer, primary_key=True)
 	customer_id=db.Column(db.Integer, db.ForeignKey('customer.id'))
 	payment_id=db.Column(db.Integer, db.ForeignKey('payment.id'))
 	date_issue=db.Column(db.DateTime, nullable=False)
-	total=db.Column(db.Numeric, nullable=False)
+	description=db.Column(db.String)
 
 class Payment(db.Model):
 	id=db.Column(db.Integer, primary_key=True)
-	#receipt_id=db.Column(db.Integer, db.ForeignKey('receipt.id'))
+	total=db.Column(db.Numeric, nullable=False)
+	paym_card=db.Column(db.Integer)
+	type_card=db.Column(db.String)
+	paym_bank=db.Column(db.Integer)
 	customer_id=db.Column(db.Integer, db.ForeignKey('customer.id'))
 	receipt=db.relationship('Receipt',backref='payment')
+	cash=db.relationship('Cash',backref='payment')
+	user_id=db.Column(db.Integer, db.ForeignKey('user.id'))
+
+class Cash(db.Model):
+	id=db.Column(db.Integer, primary_key=True)
+	date_collection=db.Column(db.DateTime, nullable=False)
+	cash001=db.Column(db.Integer)
+	cash002=db.Column(db.Integer)
+	cash005=db.Column(db.Integer)
+	cash010=db.Column(db.Integer)
+	cash020=db.Column(db.Integer)
+	cash050=db.Column(db.Integer)
+	cash100=db.Column(db.Integer)
+	cash200=db.Column(db.Integer)
+	vault=db.Column(db.Integer)  	#for user cash sheet
+	deposit=db.Column(db.Integer)	#for admin withdraw
+	payment_id=db.Column(db.Integer, db.ForeignKey('payment.id'))
+	user_id=db.Column(db.Integer, db.ForeignKey('user.id'))
 
 class Customer(db.Model):
 	id=db.Column(db.Integer, primary_key=True)
@@ -58,19 +85,51 @@ def index():
 		else:
 			user=User.query.filter_by(username=username, password=password).first()
 			if user:
+				session["user"] = username
+				session["user_id"] = user.id
 				return redirect(url_for('list_students'))
 		flash('Utente non trovato. Verifica le tue credenziali')
 		return render_template('index.html')
 	else:
 		return render_template('index.html')
 
-@app.route('/payment',methods=['GET','POST'])
+@app.route('/addpayment/<customer_id>',methods=['GET','POST'])
 def add_payment(customer_id):
+	customer=Customer.query.filter_by(id=customer_id).first()
+	payments=Payment.query.filter_by(customer_id=customer_id).all()
 	if request.method == 'POST':
-		x=customer_id
+		description=request.form['description']
+		payment_method=request.form['payment-method']
+		payment_quote=request.form['payment-quote']
+		if not description:
+			flash('description obbligatorio!')
+		elif not payment_method:
+			flash('payment-method obbligatoria!')
+		elif not payment_quote:
+			flash('payment-quote obbligatorio!')
+		else:
+			payment=Payment(
+				total=payment_quote,
+				type_card=payment_method,
+				customer_id=customer_id
+				)
+			db.session.add(payment)
+			db.session.commit()
+			receipt=Receipt(
+				customer_id=payment.customer_id,
+				payment_id=payment.id,
+				date_issue=date.today(),
+				description=description
+				)
+			db.session.add(receipt)
+			db.session.commit()
+			payments=Payment.query.filter_by(customer_id=customer_id).all()
+			if payment_method=='Contante':
+				add_cash(payment, payments, receipt, customer)
+				return render_template('liststudentspayments.html',customer=customer,payments=payments)
 	else:
-		customer_id=1	
-	return render_template('add_payment.html', customer_id=customer_id)
+		print("customer id: " + customer_id)
+		return render_template('liststudentspayments.html',customer=customer,payments=payments)
 
 @app.route('/search', methods=['GET','POST'])
 def search():
@@ -198,3 +257,60 @@ def add_customer():
 def list_students():
 	customers=Customer.query.all()
 	return render_template('liststudents.html', customers=customers)
+
+@app.route('/listpayments')
+def list_payments():
+	payments=Payment.query.all()
+	return render_template('listpayments.html', payments=payments)
+
+@app.route('/listreceipts')
+def list_receipts():
+	receipts=Receipt.query.all()
+	return render_template('listreceipts.html', receipts=receipts)
+
+@app.route('/listusers')
+def list_users():
+	users=User.query.all()
+	return render_template('listusers.html', users=users)
+
+
+#======================== xxxxxxxxxxxx	========================#
+@app.route('/addcash',methods=['GET','POST'])
+def add_cash(payment, payments, receipt, customer):
+	print('add pieces of cash here -->' + str(session.get('user_id')) + " - " + session.get('user') + " --> payment id: " + str(payment.id))
+	return render_template('listpayments.html',payments=payments)
+	if request.method=='POST':
+		flash('sono in POST')
+		cash001 = request.form['cash001']
+		cash002 = request.form['cash002']
+		cash005 = request.form['cash005']
+		cash010 = request.form['cash010']
+		cash020 = request.form['cash020']
+		cash050 = request.form['cash050']
+		cash100 = request.form['cash100']
+		cash200 = request.form['cash200']
+		vault=0
+		deposit=0
+		payment_id=payment_id
+		user_id=session.get('user_id')
+		cash=Cash(
+			cash001=cash001,
+			cash002=cash002,
+			cash005=cash005,
+			cash010=cash010,
+			cash020=cash020,
+			cash050=cash050,
+			cash100=cash100,
+			cash200=cash200,
+			vault=vault,
+			deposit=deposit,
+			payment_id=payment_id,
+			user_id=user_id
+			)
+		db.session.add(cash)
+		db.session.commit()
+		cashes=Cash.query.all()
+		return render_template('listcashes.html',cashes=cashes)
+	else:
+		cashes=Cash.query.all()
+		return render_template('newcash.html',payment=payment, receipt=receipt, customer=customer)

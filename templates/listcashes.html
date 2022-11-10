@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class='course'>
+       <h1>Lista Incassi Contante</h1>
+        <table class='list-tab'>
+              <tr><th>ID</th><th>Data</th><th>1</th><th>2</th><th>5</th><th>10</th><th>20</th><th>50</th><th>100</th><th>200</th><th>registrato in cassa</th><th>versato</th><th>user</th>
+        {% for cash in cashes %}
+            <tr>
+                <td><b>{{ payment['id'] }}</td><td>{{ receipt['date_issue'] }}</td>              
+                <td>{{ cash['cash001'] }}</td>  
+                <td>{{ cash['cash002'] }}</td>  
+                <td>{{ cash['cash005'] }}</td>  
+                <td>{{ cash['cash010'] }}</td>  
+                <td>{{ cash['cash020'] }}</td>  
+                <td>{{ cash['cash050'] }}</td>  
+                <td>{{ cash['cash100'] }}</td>  
+                <td>{{ cash['cash200'] }}</td>  
+                <td>{{ cash['vault'] }}</td>
+                <td>{{ cash['deposit'] }}</td>
+                <td>{{ session.get('username') }}</td>
+            </tr>
+        {% endfor %} 
+        </table>
+</div>
+
+{% endblock %}

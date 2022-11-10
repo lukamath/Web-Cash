@@ -1,16 +1,16 @@
-{% extends 'base_login.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 
 <div class='course'>
        <h1>Ricerca Studente</h1>
         <table class='list-tab'>
-              <tr><th>ID Corso</th><th>Cognome</th><th>Nome</th><th>Codice Fiscale</th><th> --- </th></tr>
+              <tr><th>ID Corso</th><th>Cognome</th><th>Nome</th><th>Codice Fiscale</th><th> *** ID *** </th><th> --- </th></tr>
         {% for customer in customers %}     
             <tr>
                 <td><b>{{ customer['course_id'] }}</td><td>{{ customer['surname'] }}</td><td>{{ customer['name'] }}</td>                
-                <td>{{ customer['tax_code']}}</td>
-                <td><a href="#">Pagamenti</a></td>
+                <td>{{ customer['tax_code']}}</td><td>{{ customer['id']}}</td>
+                <td><a href="{{ url_for('add_payment',customer_id=customer.id) }}">Pagamenti</a></td>
             </tr>
         {% endfor %} 
         </table>
