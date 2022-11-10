@@ -108,33 +108,41 @@ def add_payment(customer_id):
 		elif not payment_quote:
 			flash('payment-quote obbligatorio!')
 		else:
-			payment=Payment(
-				total=payment_quote,
-				type_card=payment_method,
-				customer_id=customer_id
-				)
-			db.session.add(payment)
-			db.session.commit()
-			receipt=Receipt(
-				customer_id=payment.customer_id,
-				payment_id=payment.id,
-				date_issue=date.today(),
-				description=description
-				)
-			db.session.add(receipt)
-			db.session.commit()
-			payments=Payment.query.filter_by(customer_id=customer_id).all()
+
 			if payment_method=='Contante':
-				add_cash(payment, payments, receipt, customer)
-				return render_template('liststudentspayments.html',customer=customer,payments=payments)
+				#add_cash(payment, payments, receipt, customer)
+				return redirect(url_for('add_cash', 
+					customer_id=customer_id,
+					description=description, 
+					payment_method=payment_method, 
+					payment_quote=payment_quote))
+
+			else:	
+				flash('sono fuori da add cash e dentro else --> GRAVISSIMO')
+				flash('payment_method: '+ payment_method)	
+				payment=Payment(
+					total=payment_quote,
+					type_card=payment_method,
+					customer_id=customer_id,
+					user_id=session.get('user')
+					)
+				db.session.add(payment)
+				db.session.commit()
+
+				receipt=Receipt(
+					customer_id=payment.customer_id,
+					payment_id=payment.id,
+					date_issue=date.today(),
+					description=description
+					)
+				db.session.add(receipt)
+				db.session.commit()
+				
+				payments=Payment.query.filter_by(customer_id=customer_id).all()
+				return render_template('liststudentspayments.html',customer=customer,payments=payments)					
 	else:
 		print("customer id: " + customer_id)
 		return render_template('liststudentspayments.html',customer=customer,payments=payments)
-
-@app.route('/search', methods=['GET','POST'])
-def search():
-	return render_template('search.html')
-
 
 
 #API
@@ -273,12 +281,40 @@ def list_users():
 	users=User.query.all()
 	return render_template('listusers.html', users=users)
 
+@app.route('/search', methods=['GET','POST'])
+def search():
+	return render_template('search.html')
 
 #======================== xxxxxxxxxxxx	========================#
 @app.route('/addcash',methods=['GET','POST'])
-def add_cash(payment, payments, receipt, customer):
-	print('add pieces of cash here -->' + str(session.get('user_id')) + " - " + session.get('user') + " --> payment id: " + str(payment.id))
-	return render_template('listpayments.html',payments=payments)
+def add_cash():
+	customer_id  = request.args.get('customer_id', None)
+	description  = request.args.get('description', None)
+	payment_method  = request.args.get('payment_method', None)
+	payment_quote  = request.args.get('payment_quote', None)
+	payment=Payment(
+				total=payment_quote,
+				type_card=payment_method,
+				customer_id=customer_id,
+				user_id=session.get('user')
+				)
+	db.session.add(payment)
+	db.session.commit()
+
+	receipt=Receipt(
+				customer_id=payment.customer_id,
+				payment_id=payment.id,
+				date_issue=date.today(),
+				description=description
+		)
+	db.session.add(receipt)
+	db.session.commit()
+
+	customer=Customer.query.filter_by(id=customer_id).first()
+	payments=Payment.query.filter_by(customer_id=customer_id).all()
+
+	print('add pieces of cash here -->' + str(session.get('user_id')) + " - " + session.get('user') + " --> payment id: " + str(payment_quote))
+	render_template('newcash.html',payment=payment, customer=customer,receipt=receipt)
 	if request.method=='POST':
 		flash('sono in POST')
 		cash001 = request.form['cash001']
@@ -291,7 +327,7 @@ def add_cash(payment, payments, receipt, customer):
 		cash200 = request.form['cash200']
 		vault=0
 		deposit=0
-		payment_id=payment_id
+		payment_id=payment.id
 		user_id=session.get('user_id')
 		cash=Cash(
 			cash001=cash001,
@@ -305,12 +341,13 @@ def add_cash(payment, payments, receipt, customer):
 			vault=vault,
 			deposit=deposit,
 			payment_id=payment_id,
-			user_id=user_id
+			user_id=user_id,
+			date_collection=date.today()
 			)
 		db.session.add(cash)
 		db.session.commit()
-		cashes=Cash.query.all()
-		return render_template('listcashes.html',cashes=cashes)
+		#cashes=Cash.query.all()
+		return render_template('liststudentspayments.html',payments=payments, customer=customer)
 	else:
-		cashes=Cash.query.all()
+		#cashes=Cash.query.all()
 		return render_template('newcash.html',payment=payment, receipt=receipt, customer=customer)
