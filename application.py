@@ -96,6 +96,7 @@ def index():
 @app.route('/addpayment/<customer_id>',methods=['GET','POST'])
 def add_payment(customer_id):
 	customer=Customer.query.filter_by(id=customer_id).first()
+	payments=Payment.query.filter_by(customer_id=customer_id).all()
 	if request.method == 'POST':
 		description=request.form['description']
 		payment_method=request.form['payment-method']
@@ -124,13 +125,11 @@ def add_payment(customer_id):
 			db.session.commit()
 			payments=Payment.query.filter_by(customer_id=customer_id).all()
 			if payment_method=='Contante':
-				flash ('sti kaz')
-				print('stikax')
-				add_cash(payment, receipt, customer)
-			return render_template('listpayments.html',payments=payments)
+				add_cash(payment, payments, receipt, customer)
+				return render_template('liststudentspayments.html',customer=customer,payments=payments)
 	else:
 		print("customer id: " + customer_id)
-		return render_template('newpayment.html',customer=customer)
+		return render_template('liststudentspayments.html',customer=customer,payments=payments)
 
 @app.route('/search', methods=['GET','POST'])
 def search():
@@ -277,8 +276,9 @@ def list_users():
 
 #======================== xxxxxxxxxxxx	========================#
 @app.route('/addcash',methods=['GET','POST'])
-def add_cash(payment, receipt, customer):
-	flash('add pieces of cash here -->' + str(session.get('user_id')) + " - " + session.get('user') + " --> payment id: " + str(payment.id))
+def add_cash(payment, payments, receipt, customer):
+	print('add pieces of cash here -->' + str(session.get('user_id')) + " - " + session.get('user') + " --> payment id: " + str(payment.id))
+	return render_template('listpayments.html',payments=payments)
 	if request.method=='POST':
 		flash('sono in POST')
 		cash001 = request.form['cash001']
