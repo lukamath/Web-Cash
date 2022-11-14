@@ -15,7 +15,7 @@ Session(app)
 app.config['SECRET_KEY']='uOzPG137aJNoq2bBJ4b9P81DY5vCiRXj'
 
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///db_billing.db'
-db=SQLAlchemy(app)	
+db=SQLAlchemy(app)
 
 class User(db.Model):
 	id=db.Column(db.Integer, primary_key=True)
@@ -98,6 +98,7 @@ def add_payment(customer_id):
 	customer=Customer.query.filter_by(id=customer_id).first()
 	payments=Payment.query.filter_by(customer_id=customer_id).all()
 	if request.method == 'POST':
+		flash("rientrato in POST PRC.TR!!!!!")
 		description=request.form['description']
 		payment_method=request.form['payment-method']
 		payment_quote=request.form['payment-quote']
@@ -119,31 +120,83 @@ def add_payment(customer_id):
 
 			else:	
 				flash('sono fuori da add cash e dentro else --> GRAVISSIMO')
-				flash('payment_method: '+ payment_method)	
-				payment=Payment(
-					total=payment_quote,
-					type_card=payment_method,
-					customer_id=customer_id,
-					user_id=session.get('user')
-					)
-				db.session.add(payment)
-				db.session.commit()
-
-				receipt=Receipt(
-					customer_id=payment.customer_id,
-					payment_id=payment.id,
-					date_issue=date.today(),
-					description=description
-					)
-				db.session.add(receipt)
-				db.session.commit()
-				
+				flash('payment_method: '+ payment_method)				
 				payments=Payment.query.filter_by(customer_id=customer_id).all()
-				return render_template('liststudentspayments.html',customer=customer,payments=payments)					
+				return render_template('liststudentspayments.html',customer=customer,payments=payments)
 	else:
 		print("customer id: " + customer_id)
 		return render_template('liststudentspayments.html',customer=customer,payments=payments)
 
+
+@app.route('/addcash',methods=['GET','POST'])
+def add_cash():
+	customer_id  = request.args.get('customer_id', None)
+	description  = request.args.get('description', None)
+	payment_method  = request.args.get('payment_method', None)
+	payment_quote  = request.args.get('payment_quote', None)
+	customer=Customer.query.filter_by(id=customer_id).first() #da rivedere se conviene rifare la query
+
+	if request.method=='POST':
+
+		payment=Payment(
+				total=payment_quote,
+				type_card=payment_method,
+				customer_id=customer_id,
+				user_id=session.get('user')
+				)
+		db.session.add(payment)
+		db.session.commit()
+
+		receipt=Receipt(
+					customer_id=payment.customer_id,
+					payment_id=payment.id,
+					date_issue=date.today(),
+					description=description
+			)
+		db.session.add(receipt)
+		db.session.commit()
+
+		customer=Customer.query.filter_by(id=customer_id).first()
+		payments=Payment.query.filter_by(customer_id=customer_id).all()
+
+		print('add pieces of cash here -->' + str(session.get('user_id')) + " - " + session.get('user') + " --> payment id: " + str(payment_quote))
+
+		cash001 = request.form['cash001']
+		cash002 = request.form['cash002']
+		cash005 = request.form['cash005']
+		cash010 = request.form['cash010']
+		cash020 = request.form['cash020']
+		cash050 = request.form['cash050']
+		cash100 = request.form['cash100']
+		cash200 = request.form['cash200']
+		vault=0
+		deposit=0
+		payment_id=payment.id
+		user_id=session.get('user_id')
+		cash=Cash(
+			cash001=cash001,
+			cash002=cash002,
+			cash005=cash005,
+			cash010=cash010,
+			cash020=cash020,
+			cash050=cash050,
+			cash100=cash100,
+			cash200=cash200,
+			vault=vault,
+			deposit=deposit,
+			payment_id=payment_id,
+			user_id=user_id,
+			date_collection=date.today()
+			)
+		db.session.add(cash)
+		db.session.commit()
+		#cashes=Cash.query.all()
+		#return render_template('liststudentspayments.html',payments=payments, customer=customer)
+		return redirect(url_for('add_payment',customer_id=customer_id)) 	
+	else:
+		#cashes=Cash.query.all()
+		flash=("Sono entrato in ADD_CASH con GET... ekkekkazzo, no!!!!")
+		return render_template('newcash.html',customer=customer)
 
 #API
 @app.route('/adduser', methods=['GET','POST'])
@@ -285,69 +338,5 @@ def list_users():
 def search():
 	return render_template('search.html')
 
-#======================== xxxxxxxxxxxx	========================#
-@app.route('/addcash',methods=['GET','POST'])
-def add_cash():
-	customer_id  = request.args.get('customer_id', None)
-	description  = request.args.get('description', None)
-	payment_method  = request.args.get('payment_method', None)
-	payment_quote  = request.args.get('payment_quote', None)
-	payment=Payment(
-				total=payment_quote,
-				type_card=payment_method,
-				customer_id=customer_id,
-				user_id=session.get('user')
-				)
-	db.session.add(payment)
-	db.session.commit()
 
-	receipt=Receipt(
-				customer_id=payment.customer_id,
-				payment_id=payment.id,
-				date_issue=date.today(),
-				description=description
-		)
-	db.session.add(receipt)
-	db.session.commit()
 
-	customer=Customer.query.filter_by(id=customer_id).first()
-	payments=Payment.query.filter_by(customer_id=customer_id).all()
-
-	print('add pieces of cash here -->' + str(session.get('user_id')) + " - " + session.get('user') + " --> payment id: " + str(payment_quote))
-	render_template('newcash.html',payment=payment, customer=customer,receipt=receipt)
-	if request.method=='POST':
-		flash('sono in POST')
-		cash001 = request.form['cash001']
-		cash002 = request.form['cash002']
-		cash005 = request.form['cash005']
-		cash010 = request.form['cash010']
-		cash020 = request.form['cash020']
-		cash050 = request.form['cash050']
-		cash100 = request.form['cash100']
-		cash200 = request.form['cash200']
-		vault=0
-		deposit=0
-		payment_id=payment.id
-		user_id=session.get('user_id')
-		cash=Cash(
-			cash001=cash001,
-			cash002=cash002,
-			cash005=cash005,
-			cash010=cash010,
-			cash020=cash020,
-			cash050=cash050,
-			cash100=cash100,
-			cash200=cash200,
-			vault=vault,
-			deposit=deposit,
-			payment_id=payment_id,
-			user_id=user_id,
-			date_collection=date.today()
-			)
-		db.session.add(cash)
-		db.session.commit()
-		#cashes=Cash.query.all()
-		return render_template('liststudentspayments.html',payments=payments, customer=customer)
-	else:
-		#cashes=Cash.query.all()
-		return render_template('newcash.html',payment=payment, receipt=receipt, customer=customer)
