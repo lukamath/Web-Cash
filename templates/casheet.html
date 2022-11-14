@@ -3,10 +3,10 @@
 {% block content %}
 
 <div class='course'>
-       <h1>Lista Incassi Contante</h1>
+       <h1>Foglio Cassa - utente: {{ user }} data: {{ day }}</h1>
         <table class='list-tab'>
               <tr><th>ID</th><th>Data</th><th>1</th><th>2</th><th>5</th><th>10</th><th>20</th><th>50</th><th>100</th><th>200</th><th>registrato in cassa</th><th>versato</th><th>user</th>
-        {% for cash in cashes %}
+        {% for cash in usercashes %}
             <tr>
                 <td><b>{{ cash['payment_id'] }}</td><td>{{ cash['date_collection'] }}</td>              
                 <td>{{ cash['cash001'] }}</td>  

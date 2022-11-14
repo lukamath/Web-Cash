@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template, url_for, flash, redirect, session, send_file
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 from flask_session import Session
 from datetime import date, datetime
 import pandas as pd
@@ -98,7 +99,6 @@ def add_payment(customer_id):
 	customer=Customer.query.filter_by(id=customer_id).first()
 	payments=Payment.query.filter_by(customer_id=customer_id).all()
 	if request.method == 'POST':
-		flash("rientrato in POST PRC.TR!!!!!")
 		description=request.form['description']
 		payment_method=request.form['payment-method']
 		payment_quote=request.form['payment-quote']
@@ -174,6 +174,7 @@ def add_cash():
 		payment_id=payment.id
 		user_id=session.get('user_id')
 		cash=Cash(
+			date_collection=date.today(),
 			cash001=cash001,
 			cash002=cash002,
 			cash005=cash005,
@@ -185,8 +186,7 @@ def add_cash():
 			vault=vault,
 			deposit=deposit,
 			payment_id=payment_id,
-			user_id=user_id,
-			date_collection=date.today()
+			user_id=user_id
 			)
 		db.session.add(cash)
 		db.session.commit()
@@ -338,5 +338,14 @@ def list_users():
 def search():
 	return render_template('search.html')
 
+@app.route('/listcashes', methods=['GET','POST'])
+def list_cashes():
+	cashes=Cash.query.all()
+	return render_template('listcashes.html', cashes=cashes)
 
-
+@app.route('/casheet/<user_id>', methods=['GET','POST'])
+def cash_sheet(user_id):
+	tot=0
+	usercashes=Cash.query.filter_by(user_id=user_id, vault=0).all()
+	tot = Cash.query(func.sum(Cash.cash001)).filter_by(user_id=user_id).first()
+	return render_template('casheet.html', user=session.get('user'),usercashes=usercashes, day=date.today(), tot=tot)
