@@ -25,6 +25,11 @@
         <input type="password" name="repeatpassword"
                placeholder="ripeti la password"
                value="{{ request.form['repeatpassword'] }}"></input>
+        <br><br>
+        <select name="usertype" id="usertype" width="200"><br>
+            <option value="admin"> admin </option>
+            <option value="cassiere">  cassiere  </option>
+        </select>
         <br><br><br>    
         <button type="submit">Aggiungi</button>
     </form>

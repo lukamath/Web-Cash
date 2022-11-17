@@ -58,6 +58,9 @@
         <a href="{{ url_for('list_students') }}">Lista Studenti</a>
         <a href="{{ url_for('list_payments') }}">Lista Pagamenti</a>
         <a href="#">Report Pagamenti</a>
+        {% if session.get('user_type')=='admin' -%}
+            <a href="{{ url_for('bank_management') }}">Gestione Banca - Versamenti e Prelievi</a>
+        {% endif %}
     </nav>
     <hr>
     <div class="content">

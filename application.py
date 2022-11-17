@@ -24,6 +24,7 @@ class User(db.Model):
 	surname=db.Column(db.String(25), nullable=False)
 	username=db.Column(db.String(13),nullable=False)
 	password=db.Column(db.String(13),nullable=False)
+	usertype=db.Column(db.String(20)) #to set not nullable before to deploy
 	payments=db.relationship('Payment', backref='user')
 
 class Receipt(db.Model):
@@ -88,6 +89,7 @@ def index():
 			if user:
 				session["user"] = username
 				session["user_id"] = user.id
+				session["user_type"] = user.usertype
 				return redirect(url_for('list_students'))
 		flash('Utente non trovato. Verifica le tue credenziali')
 		return render_template('index.html')
@@ -207,6 +209,7 @@ def add_user():
 		username=request.form['username']
 		password=request.form['password']
 		repeatpassword=request.form['repeatpassword']
+		usertype=request.form['usertype']
 		if not username:
 			flash('username obbligatorio!')
 		elif not password:
@@ -225,7 +228,9 @@ def add_user():
 				name=name,
 				surname=surname,
 				username=username, 
-				password=password)
+				password=password,
+				usertype=usertype
+				)
 			db.session.add(user)
 			db.session.commit()
 			return redirect(url_for('index'))
@@ -233,6 +238,10 @@ def add_user():
 	else:
 		return render_template('newuser.html')
 
+@app.route('/bankmanagement', methods=['GET','POST'])
+def bank_management():
+	payments=Payment.query.all()
+	return render_template('listpayments.html', payments=payments)
 
 #===================== test Export DB in Excel =====================
 
