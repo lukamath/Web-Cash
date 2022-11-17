@@ -196,7 +196,7 @@ def add_cash():
 	else:
 		#cashes=Cash.query.all()
 		flash=("Sono entrato in ADD_CASH con GET... ekkekkazzo, no!!!!")
-		return render_template('newcash.html',customer=customer)
+		return render_template('newcash.html',customer=customer, payment_quote=payment_quote)
 
 #API
 @app.route('/adduser', methods=['GET','POST'])

@@ -1,36 +1,83 @@
-{% extends 'base.html' %}
+{% extends 'basecash.html' %}
 
 {% block content %}
 
 <h1>{% block title %} Seleziona le banconote {% endblock %}</h1>
 <div class=cust-details>{{customer.id}}</div><div class=cust-details>{{customer.name}}</div>
-<br><br><br>  
+<br><br><br> 
 <div>
     <form method="post">
         <input type="hidden" id="customer_id" name="customer_id" value={{customer.id}}>
         <label for="cash001">1 euro</label><br>
-        <input type="number" name='cash001' id='cash001' min=0><br>
+        <input type="number" name='cash001' id='cash001' min=0 onchange="checkamount('cash001')"><br>
         <label for="cash002">2 euro</label><br>
-        <input type="number" name='cash002' id='cash002'min=0><br>
+        <input type="number" name='cash002' id='cash002'min=0 onchange="checkamount('cash002')"><br>
         <label for="cash005">5 euro</label><br>
-        <input type="number" name='cash005' id='cash005'min=0><br>
+        <input type="number" name='cash005' id='cash005'min=0 onchange="checkamount('cash005')"><br>
         <label for="cash010">10 euro</label><br>
-        <input type="number" name='cash010' id='cash010'min=0><br>
+        <input type="number" name='cash010' id='cash010'min=0 onchange="checkamount('cash010')"><br>
         <label for="cash020">20 euro</label><br>
-        <input type="number" name='cash020' id='cash020' min=0><br>
+        <input type="number" name='cash020' id='cash020' min=0 onchange="checkamount('cash020')"><br>
         <label for="cash050">50 euro</label><br>
-        <input type="number" name='cash050' id='cash050' min=0><br>
+        <input type="number" name='cash050' id='cash050' min=0 onchange="checkamount('cash050')"><br>
         <label for="cash100">100 euro</label><br>
-        <input type="number" name="cash100" id='cash100' min=0><br>
+        <input type="number" name="cash100" id='cash100' min=0 onchange="checkamount('cash100')"><br>
         <label for="cash200">200 euro</label><br>
-        <input type="number" name="cash200" id='cash200'min=0><br>
+        <input type="number" name="cash200" id='cash200'min=0 onchange="checkamount('cash200')"><br>
         <br><br>    
         <button type="submit">Incassa</button>
     </form>
 </div>
 <br><br>
 <div>
-    <h3>{{ tot }}</h3>  
+    <h3 id='Totale'>totale</h3>  
+    <div id='incrementalcash'></div>
+    <div id='gtot'></div>
+    <div id='payment_quote'>{{payment_quote}}</div>
 </div>
 
+<script language="JavaScript">
+    function checkamount(fieldID){
+        tot=
+        document.getElementById("cash001").value*1+
+        document.getElementById("cash002").value*2+
+        document.getElementById("cash005").value*5+
+        document.getElementById("cash010").value*10+
+        document.getElementById("cash020").value*20+
+        document.getElementById("cash050").value*50+
+        document.getElementById("cash100").value*100+
+        document.getElementById("cash200").value*200
+        ;
+        if (tot>300){
+            document.getElementById(fieldID).value=document.getElementById(fieldID).value-1
+        } 
+        else {
+            let totstring = tot.toString();
+            document.getElementById("incrementalcash").innerHTML=totstring;
+            document.getElementById("gtot").innerHTML=getTot();
+        }
+    }
+
+</script>
+
+<script>
+    function initcash(){
+        var tot=0
+        let totstring = tot.toString();
+        document.getElementById("incrementalcash").innerHTML=totstring;
+
+        document.getElementById("cash001").innerHTML=0;
+        document.getElementById("cash002").innerHTML=0;
+        document.getElementById("cash005").innerHTML=0;
+        document.getElementById("cash010").innerHTML=0;
+        document.getElementById("cash020").innerHTML=0;
+        document.getElementById("cash050").innerHTML=0;
+        document.getElementById("cash100").innerHTML=0;
+        document.getElementById("cash200").innerHTML=0;
+    }
+
+    function getTot(){
+        return tot
+    }
+</script>
 {% endblock %}
