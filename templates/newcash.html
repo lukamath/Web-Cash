@@ -36,8 +36,11 @@
     <div id='payment_quote'>{{payment_quote}}</div>
 </div>
 
+
+
 <script language="JavaScript">
     function checkamount(fieldID){
+        //window.alert({{payment_quote}});
         tot=
         document.getElementById("cash001").value*1+
         document.getElementById("cash002").value*2+
@@ -48,21 +51,27 @@
         document.getElementById("cash100").value*100+
         document.getElementById("cash200").value*200
         ;
-        if (tot>300){
+        if (tot>{{payment_quote}}){
             document.getElementById(fieldID).value=document.getElementById(fieldID).value-1
         } 
         else {
             let totstring = tot.toString();
             document.getElementById("incrementalcash").innerHTML=totstring;
             document.getElementById("gtot").innerHTML=getTot();
+            if (tot=={{payment_quote}}){
+                cashin=1;
+                window.alert("Incasso Corretto");
+            }
+            else{
+                cashin=0;
+            }
+
         }
     }
 
-</script>
-
-<script>
     function initcash(){
         var tot=0
+        var cashin=0 //per segnare l'importo corretto e dare ok all'incasso
         let totstring = tot.toString();
         document.getElementById("incrementalcash").innerHTML=totstring;
 
@@ -80,4 +89,5 @@
         return tot
     }
 </script>
+
 {% endblock %}
