@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'basecash.html' %}
 
 {% block content %}
 
@@ -22,7 +22,56 @@
                 <td>{{ cash['user_id'] }}</td>
             </tr>
         {% endfor %} 
+            <tr>
+                <td><b>{{day}}</td>      
+                <td><b>Totali</td>          
+                <td><b>{{ dailycash['cash001'] }}</td>  
+                <td><b>{{ dailycash.cash002 }}</td>
+                <td><b>{{ dailycash.cash005 }}</td>
+                <td><b>{{ dailycash.cash010 }}</td>  
+                <td><b>{{ dailycash.cash020 }}</td>  
+                <td><b>{{ dailycash.cash050 }}</td>  
+                <td><b>{{ dailycash.cash100 }}</td>  
+                <td><b>{{ dailycash.cash200 }}</td>  
+                <td><b> - </td>
+                <td><b> - </td>
+                <td><b> - </td>
+            </tr>
         </table>
 </div>
+
+<div><br>
+    Totale Giorno: {{ dailycash.daily_total }}
+</div>
+
+<script>
+
+    function initcash(){
+        var cash001=0;
+        var cash002=0;
+        var cash005=0;
+        var cash010=0;
+        var cash020=0;
+        var cash050=0;
+        var cash100=0;
+        var cash200=0;
+        var daily_total=0;
+    }
+
+    function sumcashpieces(cash){
+        cash001=cash001 + cash.cash001
+        cash002=cash002 + cash.cash002
+        cash005=cash005 + cash.cash005
+        cash010=cash010 + cash.cash010
+        cash020=cash020 + cash.cash020
+        cash050=cash050 + cash.cash050
+        cash100=cash100 + cash.cash100
+        cash200=cash200 + cash.cash200
+        daily_total=cash001 + cash002 + cash005 + cash010 + cash020 + cash050 + cash100 + cash200
+        window.alert(cash001 + " " cash002 + " " + cash005 + " " cash010 + " " + cash020 + " " cash050 + " " + cash100 + " " cash200)
+        window.alert(cash001 + cash002 + cash005 + cash010 + cash020 + cash050 + cash100 + cash200)
+        window.alert(daily_total)
+    }
+</script>
 
 {% endblock %}

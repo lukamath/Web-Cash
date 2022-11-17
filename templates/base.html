@@ -60,6 +60,8 @@
         <a href="#">Report Pagamenti</a>
         {% if session.get('user_type')=='admin' -%}
             <a href="{{ url_for('bank_management') }}">Gestione Banca - Versamenti e Prelievi</a>
+        {% elif session.get('user_type')=='cassiere' -%}
+            <a href="{{ url_for('cash_sheet',user_id=session.get('user_id')) }}">Foglio Cassa</a>
         {% endif %}
     </nav>
     <hr>

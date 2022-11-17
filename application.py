@@ -355,6 +355,46 @@ def list_cashes():
 @app.route('/casheet/<user_id>', methods=['GET','POST'])
 def cash_sheet(user_id):
 	tot=0
+	cash001=0
+	cash002=0
+	cash005=0
+	cash010=0
+	cash020=0
+	cash050=0
+	cash100=0
+	cash200=0
 	usercashes=Cash.query.filter_by(user_id=user_id, vault=0).all()
-	tot = Cash.query(func.sum(Cash.cash001)).filter_by(user_id=user_id).first()
-	return render_template('casheet.html', user=session.get('user'),usercashes=usercashes, day=date.today(), tot=tot)
+	#tot = Cash.query(func.sum(Cash.cash001)).filter_by(user_id=user_id).first()
+	for cash in usercashes:
+		if cash.cash001!='':
+			cash001=cash001+int(cash.cash001)
+		if cash.cash002!='':
+			cash002=cash002+cash.cash002
+		if cash.cash005!='':
+			cash005=cash005+cash.cash005
+		if cash.cash010!='':
+			cash010=cash010+cash.cash010
+		if cash.cash020!='':
+			cash020=cash020+cash.cash020
+		if cash.cash050!='':
+			cash050=cash050+cash.cash050
+		if cash.cash100!='':
+			cash100=cash100+cash.cash100
+		if cash.cash200!='':
+			cash200=cash200+cash.cash200
+	daily_total=cash001*1+cash002*2+cash005*5+cash010*10+cash020*20+cash050*50+cash100*100+cash200*200
+	dailycash=DailyUserCash(cash001,cash002,cash005,cash010,cash020,cash050,cash100,cash200,daily_total)
+	return render_template('casheet.html', user=session.get('user'),usercashes=usercashes, dailycash=DailyUserCash(cash001,cash002,cash005,cash010,cash020,cash050,cash100,cash200,daily_total), day=date.today())
+
+
+class DailyUserCash:
+	def __init__(self, cash001, cash002, cash005, cash010, cash020, cash050, cash100, cash200, daily_total):
+		self.cash001 = cash001
+		self.cash002 = cash002
+		self.cash005 = cash005
+		self.cash010 = cash010
+		self.cash020 = cash020
+		self.cash050 = cash050
+		self.cash100 = cash100
+		self.cash200 = cash200
+		self.daily_total=daily_total
