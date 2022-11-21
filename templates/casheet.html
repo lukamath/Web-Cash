@@ -43,10 +43,17 @@
 <div><br>
     Totale Giorno: {{ dailycash.daily_total }}
 </div>
+<br>
+<div><button onclick="window.location.href='{{ url_for('list_students') }}';">Registra Foglio Cassa</button></div>
 
 <script>
 
     function initcash(){
+
+        {% if session.get('user_type')=='' -%}
+            location.replace("/")
+        {% endif %}
+        
         var cash001=0;
         var cash002=0;
         var cash005=0;
@@ -55,7 +62,7 @@
         var cash050=0;
         var cash100=0;
         var cash200=0;
-        var daily_total=0;
+        var daily_total=0;        
     }
 
     function sumcashpieces(cash){
@@ -68,10 +75,14 @@
         cash100=cash100 + cash.cash100
         cash200=cash200 + cash.cash200
         daily_total=cash001 + cash002 + cash005 + cash010 + cash020 + cash050 + cash100 + cash200
-        window.alert(cash001 + " " cash002 + " " + cash005 + " " cash010 + " " + cash020 + " " cash050 + " " + cash100 + " " cash200)
-        window.alert(cash001 + cash002 + cash005 + cash010 + cash020 + cash050 + cash100 + cash200)
-        window.alert(daily_total)
     }
+
+    function sessionvalidator(){
+        {% if session.get('user_type')=='' -%}
+            location.replace("/")
+        {% endif %}
+    }
+
 </script>
 
 {% endblock %}

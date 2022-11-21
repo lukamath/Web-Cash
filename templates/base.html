@@ -51,9 +51,9 @@
 
     </style>
 </head>
-<body>
+<body onload="sessionvalidator()">
     <nav>
-        <a href="{{ url_for('index') }}">Login</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
         <a href="{{ url_for('add_customer') }}">Nuovo Studente</a>
         <a href="{{ url_for('list_students') }}">Lista Studenti</a>
         <a href="{{ url_for('list_payments') }}">Lista Pagamenti</a>

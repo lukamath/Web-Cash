@@ -96,6 +96,13 @@ def index():
 	else:
 		return render_template('index.html')
 
+@app.route('/logout')
+def logout():
+	session["user"] = ''
+	session["user_id"] = ''
+	session["user_type"] = ''
+	return render_template('loggedout.html')
+
 @app.route('/addpayment/<customer_id>',methods=['GET','POST'])
 def add_payment(customer_id):
 	customer=Customer.query.filter_by(id=customer_id).first()
@@ -192,11 +199,8 @@ def add_cash():
 			)
 		db.session.add(cash)
 		db.session.commit()
-		#cashes=Cash.query.all()
-		#return render_template('liststudentspayments.html',payments=payments, customer=customer)
 		return redirect(url_for('add_payment',customer_id=customer_id)) 	
 	else:
-		#cashes=Cash.query.all()
 		flash=("Sono entrato in ADD_CASH con GET... ekkekkazzo, no!!!!")
 		return render_template('newcash.html',customer=customer, payment_quote=payment_quote)
 
@@ -243,62 +247,7 @@ def bank_management():
 	payments=Payment.query.all()
 	return render_template('listpayments.html', payments=payments)
 
-#===================== test Export DB in Excel =====================
 
-UPLOAD_FOLDER = 'D:/Luka/Programming/Python/WebCash/Downloads'
-app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
-
-def to_dict(row):
-    if row is None:
-        return None
-
-    rtn_dict = dict()
-    keys = row.__table__.columns.keys()
-    for key in keys:
-        rtn_dict[key] = getattr(row, key)
-    return rtn_dict
-
-
-@app.route('/excel', methods=['GET', 'POST'])
-def exportexcel():
-    data = User.query.all()
-    data_list = [to_dict(item) for item in data]
-    df = pd.DataFrame(data_list)
-    filename = app.config['UPLOAD_FOLDER']+"/userlist.xlsx"
-    print("Filename: "+ filename)
-
-    writer = pd.ExcelWriter(filename, engine='openpyxl')
-    df.to_excel(writer, sheet_name='kaz01')
-    writer.save()
-
-    return redirect(url_for('add_user'))
-
-
-#https://www.tutorialexample.com/python-pandas-append-data-to-excel-a-step-guide-python-pandas-tutorial/
-@app.route('/newrow', methods=['GET','POST'])
-def new_row():
-	
-	#excel_name = app.config['UPLOAD_FOLDER']+"/userlist03.xlsx"
-	excel_name ='/Downloads/userlist.xlsx'
-
-	data=User.query.order_by(User.id.desc()).first()
-	data_list = [to_dict(data)]
-	df = pd.DataFrame(data_list, index= None)
-	
-	df_source = None
-	if os.path.exists(excel_name):
-		data_list=pd.read_excel('/Downloads/userlist.xlsx',engine='openpyxl',index_col=None)
-		df_source = pd.DataFrame(data_list)
-	if df_source is not None:
-		df_dest = df_source.append(df)
-	else:
-		df_dest = df
-
-	writer=pd.ExcelWriter(excel_name)
-	df_dest.to_excel(writer, sheet_name='kaz02')
-	writer.save()
-
-	return redirect(url_for('add_user'))
 
 @app.route('/addcustomer', methods=['GET','POST'])
 def add_customer():
@@ -383,9 +332,7 @@ def cash_sheet(user_id):
 		if cash.cash200!='':
 			cash200=cash200+cash.cash200
 	daily_total=cash001*1+cash002*2+cash005*5+cash010*10+cash020*20+cash050*50+cash100*100+cash200*200
-	dailycash=DailyUserCash(cash001,cash002,cash005,cash010,cash020,cash050,cash100,cash200,daily_total)
-	return render_template('casheet.html', user=session.get('user'),usercashes=usercashes, dailycash=DailyUserCash(cash001,cash002,cash005,cash010,cash020,cash050,cash100,cash200,daily_total), day=date.today())
-
+	return render_template('casheet.html', user=session.get('user'),usercashes=usercashes, dailycash=DailyUserCash(cash001,cash002,cash005,cash010,cash020,cash050,cash100,cash200,daily_total), 	day=date.today())
 
 class DailyUserCash:
 	def __init__(self, cash001, cash002, cash005, cash010, cash020, cash050, cash100, cash200, daily_total):
@@ -398,3 +345,61 @@ class DailyUserCash:
 		self.cash100 = cash100
 		self.cash200 = cash200
 		self.daily_total=daily_total
+
+
+#===================== test Export DB in Excel =====================
+
+UPLOAD_FOLDER = 'D:/Luka/Programming/Python/WebCash/Downloads'
+app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
+
+def to_dict(row):
+    if row is None:
+        return None
+
+    rtn_dict = dict()
+    keys = row.__table__.columns.keys()
+    for key in keys:
+        rtn_dict[key] = getattr(row, key)
+    return rtn_dict
+
+
+@app.route('/excel', methods=['GET', 'POST'])
+def exportexcel():
+    data = User.query.all()
+    data_list = [to_dict(item) for item in data]
+    df = pd.DataFrame(data_list)
+    filename = app.config['UPLOAD_FOLDER']+"/userlist.xlsx"
+    print("Filename: "+ filename)
+
+    writer = pd.ExcelWriter(filename, engine='openpyxl')
+    df.to_excel(writer, sheet_name='kaz01')
+    writer.save()
+
+    return redirect(url_for('add_user'))
+
+
+#https://www.tutorialexample.com/python-pandas-append-data-to-excel-a-step-guide-python-pandas-tutorial/
+@app.route('/newrow', methods=['GET','POST'])
+def new_row():
+	
+	#excel_name = app.config['UPLOAD_FOLDER']+"/userlist03.xlsx"
+	excel_name ='/Downloads/userlist.xlsx'
+
+	data=User.query.order_by(User.id.desc()).first()
+	data_list = [to_dict(data)]
+	df = pd.DataFrame(data_list, index= None)
+	
+	df_source = None
+	if os.path.exists(excel_name):
+		data_list=pd.read_excel('/Downloads/userlist.xlsx',engine='openpyxl',index_col=None)
+		df_source = pd.DataFrame(data_list)
+	if df_source is not None:
+		df_dest = df_source.append(df)
+	else:
+		df_dest = df
+
+	writer=pd.ExcelWriter(excel_name)
+	df_dest.to_excel(writer, sheet_name='kaz02')
+	writer.save()
+
+	return redirect(url_for('add_user'))

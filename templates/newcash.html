@@ -70,6 +70,11 @@
     }
 
     function initcash(){
+
+        {% if session.get('user_type')=='' -%}
+            location.replace("/")
+        {% endif %}
+
         var tot=0
         var cashin=0 //per segnare l'importo corretto e dare ok all'incasso
         let totstring = tot.toString();

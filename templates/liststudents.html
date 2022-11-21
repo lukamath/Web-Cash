@@ -16,4 +16,12 @@
         </table>
 </div>
 
+<script >
+    function sessionvalidator(){
+        {% if session.get('user_type')=='' -%}
+            location.replace("/")
+        {% endif %}
+    }
+</script>
+
 {% endblock %}
