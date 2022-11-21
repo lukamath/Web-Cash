@@ -303,36 +303,40 @@ def list_cashes():
 
 @app.route('/casheet/<user_id>', methods=['GET','POST'])
 def cash_sheet(user_id):
-	tot=0
-	cash001=0
-	cash002=0
-	cash005=0
-	cash010=0
-	cash020=0
-	cash050=0
-	cash100=0
-	cash200=0
-	usercashes=Cash.query.filter_by(user_id=user_id, vault=0).all()
-	#tot = Cash.query(func.sum(Cash.cash001)).filter_by(user_id=user_id).first()
-	for cash in usercashes:
-		if cash.cash001!='':
-			cash001=cash001+int(cash.cash001)
-		if cash.cash002!='':
-			cash002=cash002+cash.cash002
-		if cash.cash005!='':
-			cash005=cash005+cash.cash005
-		if cash.cash010!='':
-			cash010=cash010+cash.cash010
-		if cash.cash020!='':
-			cash020=cash020+cash.cash020
-		if cash.cash050!='':
-			cash050=cash050+cash.cash050
-		if cash.cash100!='':
-			cash100=cash100+cash.cash100
-		if cash.cash200!='':
-			cash200=cash200+cash.cash200
-	daily_total=cash001*1+cash002*2+cash005*5+cash010*10+cash020*20+cash050*50+cash100*100+cash200*200
-	return render_template('casheet.html', user=session.get('user'),usercashes=usercashes, dailycash=DailyUserCash(cash001,cash002,cash005,cash010,cash020,cash050,cash100,cash200,daily_total), 	day=date.today())
+	if request.method=='POST':
+		username=request.form['username']
+		return redirect(url_for('print_casheet'))
+	else:
+		tot=0
+		cash001=0
+		cash002=0
+		cash005=0
+		cash010=0
+		cash020=0
+		cash050=0
+		cash100=0
+		cash200=0
+		usercashes=Cash.query.filter_by(user_id=user_id, vault=0).all()
+		#tot = Cash.query(func.sum(Cash.cash001)).filter_by(user_id=user_id).first()
+		for cash in usercashes:
+			if cash.cash001!='':
+				cash001=cash001+int(cash.cash001)
+			if cash.cash002!='':
+				cash002=cash002+cash.cash002
+			if cash.cash005!='':
+				cash005=cash005+cash.cash005
+			if cash.cash010!='':
+				cash010=cash010+cash.cash010
+			if cash.cash020!='':
+				cash020=cash020+cash.cash020
+			if cash.cash050!='':
+				cash050=cash050+cash.cash050
+			if cash.cash100!='':
+				cash100=cash100+cash.cash100
+			if cash.cash200!='':
+				cash200=cash200+cash.cash200
+		daily_total=cash001*1+cash002*2+cash005*5+cash010*10+cash020*20+cash050*50+cash100*100+cash200*200
+		return render_template('casheet.html', user=session.get('user'),usercashes=usercashes, dailycash=DailyUserCash(cash001,cash002,cash005,cash010,cash020,cash050,cash100,cash200,daily_total), 	day=date.today())
 
 class DailyUserCash:
 	def __init__(self, cash001, cash002, cash005, cash010, cash020, cash050, cash100, cash200, daily_total):
@@ -349,7 +353,7 @@ class DailyUserCash:
 
 #===================== test Export DB in Excel =====================
 
-UPLOAD_FOLDER = 'D:/Luka/Programming/Python/WebCash/Downloads'
+UPLOAD_FOLDER = 'F:/Luka/Programming/Python/WebCash/Downloads' 
 app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
 
 def to_dict(row):
@@ -365,6 +369,7 @@ def to_dict(row):
 
 @app.route('/excel', methods=['GET', 'POST'])
 def exportexcel():
+
     data = User.query.all()
     data_list = [to_dict(item) for item in data]
     df = pd.DataFrame(data_list)
@@ -381,7 +386,7 @@ def exportexcel():
 #https://www.tutorialexample.com/python-pandas-append-data-to-excel-a-step-guide-python-pandas-tutorial/
 @app.route('/newrow', methods=['GET','POST'])
 def new_row():
-	
+
 	#excel_name = app.config['UPLOAD_FOLDER']+"/userlist03.xlsx"
 	excel_name ='/Downloads/userlist.xlsx'
 
@@ -403,3 +408,26 @@ def new_row():
 	writer.save()
 
 	return redirect(url_for('add_user'))
+
+
+@app.route('/printcasheet', methods=['GET','POST'])
+def print_casheet():
+	user_id=session.get('user_id')
+	data = Cash.query.filter_by(user_id=user_id	, vault=0).all()
+	data_list = [to_dict(item) for item in data]
+	df = pd.DataFrame(data_list)
+	filename = app.config['UPLOAD_FOLDER']+"/Foglio_Cassa_"+str(session.get('user'))+"_"+str(date.today())+".xlsx"
+	print("Filename: "+ filename)
+
+	writer = pd.ExcelWriter(filename, engine='openpyxl')
+	df.to_excel(writer, sheet_name='Cash')
+	writer.save()
+	Cash.query.filter_by(user_id=user_id,vault=0).update(dict(vault=1))
+	db.session.commit()
+	return redirect(url_for('cash_sheet', user_id=user_id, username	=session.get('user')))
+
+
+@app.route('/testkaz/<username>', methods=['GET','POST'])
+def test_kaz(username):
+	usercashes=Cash.query.filter_by(user_id=session.get('user_id'), vault=0).all()
+	return render_template('testkaz.html', username=username, usercashes=usercashes)

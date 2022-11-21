@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<div class='course'>
+<div class='cash_sheet'>
        <h1>Foglio Cassa - utente: {{ user }} data: {{ day }}</h1>
         <table class='list-tab'>
               <tr><th>ID</th><th>Data</th><th>1</th><th>2</th><th>5</th><th>10</th><th>20</th><th>50</th><th>100</th><th>200</th><th>registrato in cassa</th><th>versato</th><th>user</th>
@@ -44,7 +44,14 @@
     Totale Giorno: {{ dailycash.daily_total }}
 </div>
 <br>
-<div><button onclick="window.location.href='{{ url_for('list_students') }}';">Registra Foglio Cassa</button></div>
+<div>
+    <form method="post">
+        <input type="hidden" id="username" name="username" value={{user}}>
+        <input type="hidden" id="usercashes"  name="usercashes" value={{usercashes}} > <br>
+        <br><br>    
+        <button type="submit">Stampa Foglio Cassa</button>
+    </form>
+</div>
 
 <script>
 
