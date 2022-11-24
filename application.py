@@ -245,7 +245,7 @@ def add_user():
 @app.route('/bankmanagement', methods=['GET','POST'])
 def bank_management():
 	payments=Payment.query.all()
-	return render_template('listpayments.html', payments=payments)
+	return render_template('bankmanagement.html', payments=payments, user_id=str(session.get('user_id')))
 
 
 
