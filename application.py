@@ -245,14 +245,12 @@ def add_user():
 @app.route('/bankmanagement', methods=['GET','POST'])
 def bank_management():
 	if request.method=='POST':
-		payments=Payment.query.all()
+		#payments=Payment.query.all()
 		cashes=Cash.query.filter_by(vault=1).all()
 	else:
 		payments=Payment.query.all()
 		cashes=Cash.query.filter_by(vault=1).all()
 	return render_template('bankmanagement.html', cashes=cashes, payments=payments, user_id=str(session.get('user_id')))
-
-
 
 @app.route('/addcustomer', methods=['GET','POST'])
 def add_customer():
@@ -269,11 +267,7 @@ def add_customer():
 		customer=Customer(name=name, surname=surname, tax_code=tax_code,address=address,zip_code=zip_code,city=city, prov_state=prov_state,nation=nation, course_id=course_id)
 		db.session.add(customer)
 		db.session.commit()
-		
-		#customers=Customer.query.all()
-		#return render_template('liststudents.html', customers=customers)
 		return redirect(url_for('list_students'))
-
 	else:
 		return render_template('newcustomer.html')
 

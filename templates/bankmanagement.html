@@ -4,7 +4,7 @@
 
 <div class='payment'>
        <h1>Lista Completa Pagamenti</h1>
-        <table class='list-tab'>
+<!--         <table class='list-tab'>
             <tr><th>Id Receipt</th><th>Data</th><th>ID Customer</th><th>Description</th><th>Vault</th><th>Deposit</th><th>Cassiere</th><th>Tipo</th><th>Totale</th>
         {% for payment in payments %}     
             <tr>
@@ -18,7 +18,7 @@
                     <td>{{ payment['total'] }}</td>                               
             </tr>
         {% endfor %} 
-        </table>
+        </table> -->
         <br>
         <br>
          <table class='list-tab'>
@@ -26,14 +26,14 @@
         {% for cash in cashes %}     
             <tr>
                 <td>{% with p = cash['payment'] %} {{ p.id }} </td>
-                    <td>{{ date_collection }} </td>
+                    <td>{% for r in p['receipt'] %} {{ r.date_issue }} </td>
                     <td><b>{{p.customer_id}}</td>
-                    <td>{% for r in p['receipt'] %} {{r.description}}{% endfor %}</td>     
+                    <td>{{r.description}}{% endfor %}</td>     
                     <td>{% for c in p['cash'] %} {{c.vault}}</td>
                     <td>{{c.deposit}} {% endfor %}</td>
                     <td>{{ p.user_id}}</td>
                     <td>{{ p.type_card }}</td>
-                    <td>{{ p.total }} {% endwith %}</td>
+                    <td>{{ (p.total)|round(2) }} {% endwith %}</td>
 
             </tr>
         {% endfor %} 
