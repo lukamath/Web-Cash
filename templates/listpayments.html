@@ -3,15 +3,18 @@
 {% block content %}
 
 <div class='payment'>
-       <h1>Pagamenti Studente</h1>
+       <h1>Lista Completa Pagamenti</h1>
         <table class='list-tab'>
-              <tr><th>ID Customer</th><th>Tipo</th><th>Id Receipt</th><th>Description</th><th>Vault</th><th>Deposit</th><th>Cassiere</th><th>Totale</th>
+            <tr><th>Id Receipt</th><th>Data</th><th>ID Customer</th><th>Description</th><th>Vault</th><th>Deposit</th><th>Cassiere</th><th>Tipo</th><th>Totale</th>
         {% for payment in payments %}     
             <tr>
-                <td><b>{{ payment['customer_id'] }}</td><td>{{ payment['type_card'] }}</td>
-                    <td>{% for r in payment['receipt'] %} {{r.id}} </td><td>{{r.description}} {% endfor %}</td>
+                    <td>{% for r in payment['receipt'] %} {{r.id}}</td>
+                    <td>{{r.date_issue}} {% endfor %}</td>
+                    <td><b>{{ payment['customer_id'] }}</td>           
+                    <td>{% for r in payment['receipt'] %} {{r.description}}{% endfor %}</td>              
                     <td>{% for c in payment['cash'] %} {{c.vault}} </td><td>{{c.deposit}} {% endfor %} </td>
-                    <td> insierire username</td>
+                    <td>{{ payment.user_id}}</td>
+                    <td>{{ payment['type_card'] }}</td>
                     <td>{{ payment['total'] }}</td>                               
             </tr>
         {% endfor %} 

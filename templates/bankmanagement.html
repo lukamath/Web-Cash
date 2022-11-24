@@ -5,19 +5,48 @@
 <div class='payment'>
        <h1>Lista Completa Pagamenti</h1>
         <table class='list-tab'>
-              <tr><th>ID Customer</th><th>Tipo</th><th>Id Receipt</th><th>Description</th><th>Vault</th><th>Deposit</th><th>Cassiere</th><th>Totale</th>
+            <tr><th>Id Receipt</th><th>Data</th><th>ID Customer</th><th>Description</th><th>Vault</th><th>Deposit</th><th>Cassiere</th><th>Tipo</th><th>Totale</th>
         {% for payment in payments %}     
             <tr>
-                <td><b>{{ payment['customer_id'] }}</td><td>{{ payment['type_card'] }}</td>
-                    <td>{% for r in payment['receipt'] %} {{r.id}} </td><td>{{r.description}} {% endfor %}</td>
+                    <td>{% for r in payment['receipt'] %} {{r.id}}</td>
+                    <td>{{r.date_issue}} {% endfor %}</td>
+                    <td><b>{{ payment['customer_id'] }}</td>           
+                    <td>{% for r in payment['receipt'] %} {{r.description}}{% endfor %}</td>              
                     <td>{% for c in payment['cash'] %} {{c.vault}} </td><td>{{c.deposit}} {% endfor %} </td>
-                    <td>{% from 'username_by_id.sql' import username_by_id %}
-                        {{ username_by_id('User', 'user_id') }}
-                    </td>
+                    <td>{{ payment.user_id}}</td>
+                    <td>{{ payment['type_card'] }}</td>
                     <td>{{ payment['total'] }}</td>                               
             </tr>
         {% endfor %} 
         </table>
+        <br>
+        <br>
+         <table class='list-tab'>
+            <tr><th>Id Receipt</th><th>Data</th><th>ID Customer</th><th>Description</th><th>Vault</th><th>Deposit</th><th>Cassiere</th><th>Tipo</th><th>Totale</th>
+        {% for cash in cashes %}     
+            <tr>
+                <td>{% with p = cash['payment'] %} {{ p.id }} </td>
+                    <td>{{ date_collection }} </td>
+                    <td><b>{{p.customer_id}}</td>
+                    <td>{% for r in p['receipt'] %} {{r.description}}{% endfor %}</td>     
+                    <td>{% for c in p['cash'] %} {{c.vault}}</td>
+                    <td>{{c.deposit}} {% endfor %}</td>
+                    <td>{{ p.user_id}}</td>
+                    <td>{{ p.type_card }}</td>
+                    <td>{{ p.total }} {% endwith %}</td>
+
+            </tr>
+        {% endfor %} 
+        </table>
+</div>
+
+<div>
+    <form method="post">
+        <input type="hidden" id="username" name="username" value={{user}}>
+        <input type="hidden" id="payments"  name="payments" value={{payments}} > <br>
+        <br><br>    
+        <button type="submit">Effettua Versamento</button>
+    </form>
 </div>
 
 <script >

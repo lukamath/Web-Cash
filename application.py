@@ -22,7 +22,7 @@ class User(db.Model):
 	id=db.Column(db.Integer, primary_key=True)
 	name=db.Column(db.String(25), nullable=False)
 	surname=db.Column(db.String(25), nullable=False)
-	username=db.Column(db.String(13),nullable=False)
+	username=db.Column(db.String(13),nullable=False, unique=True)
 	password=db.Column(db.String(13),nullable=False)
 	usertype=db.Column(db.String(20)) #to set not nullable before to deploy
 	payments=db.relationship('Payment', backref='user')
@@ -43,7 +43,7 @@ class Payment(db.Model):
 	customer_id=db.Column(db.Integer, db.ForeignKey('customer.id'))
 	receipt=db.relationship('Receipt',backref='payment')
 	cash=db.relationship('Cash',backref='payment')
-	user_id=db.Column(db.Integer, db.ForeignKey('user.id'))
+	user_id=db.Column(db.Integer, db.ForeignKey('user.id'))  #da correggere con username --> user.username
 
 class Cash(db.Model):
 	id=db.Column(db.Integer, primary_key=True)
@@ -244,8 +244,13 @@ def add_user():
 
 @app.route('/bankmanagement', methods=['GET','POST'])
 def bank_management():
-	payments=Payment.query.all()
-	return render_template('bankmanagement.html', payments=payments, user_id=str(session.get('user_id')))
+	if request.method=='POST':
+		payments=Payment.query.all()
+		cashes=Cash.query.filter_by(vault=1).all()
+	else:
+		payments=Payment.query.all()
+		cashes=Cash.query.filter_by(vault=1).all()
+	return render_template('bankmanagement.html', cashes=cashes, payments=payments, user_id=str(session.get('user_id')))
 
 
 
