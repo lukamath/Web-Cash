@@ -56,10 +56,24 @@ class Cash(db.Model):
 	cash050=db.Column(db.Integer)
 	cash100=db.Column(db.Integer)
 	cash200=db.Column(db.Integer)
-	vault=db.Column(db.Integer)  	#for user cash sheet
-	deposit=db.Column(db.Integer)	#for admin withdraw
+	vault=db.Column(db.Integer, db.ForeignKey('cashvault.id'))  	#for user cash sheet
+	deposit=db.Column(db.Integer, db.ForeignKey('cashdeposit.id'))	#for admin deposit
 	payment_id=db.Column(db.Integer, db.ForeignKey('payment.id'))
 	user_id=db.Column(db.Integer, db.ForeignKey('user.id'))
+
+class Cashvault(db.Model):
+	id=db.Column(db.Integer, primary_key=True)
+	date_vault=db.Column(db.DateTime, nullable=False)
+	total_vault=db.Column(db.Numeric, nullable=False)
+	user_id=db.Column(db.Integer, db.ForeignKey('user.id'))
+	cash=db.relationship('Cash',backref='cashvault')
+
+class Cashdeposit(db.Model):
+	id=db.Column(db.Integer, primary_key=True)
+	date_deposit=db.Column(db.DateTime, nullable=False)
+	total_deposit=db.Column(db.Numeric, nullable=False)
+	user_id=db.Column(db.Integer, db.ForeignKey('user.id'))	
+	cash=db.relationship('Cash',backref='cashdeposit')
 
 class Customer(db.Model):
 	id=db.Column(db.Integer, primary_key=True)
@@ -246,11 +260,11 @@ def add_user():
 def bank_management():
 	if request.method=='POST':
 		#payments=Payment.query.all()
-		cashes=Cash.query.filter_by(vault=1).all()
+		cashes=Cash.query.filter_by(vault=True).all()
 	else:
-		payments=Payment.query.all()
-		cashes=Cash.query.filter_by(vault=1).all()
-	return render_template('bankmanagement.html', cashes=cashes, payments=payments, user_id=str(session.get('user_id')))
+		#payments=Payment.query.all()
+		cashes=Cash.query.filter_by(vault=True).all()
+	return render_template('bankmanagement.html', cashes=cashes, user_id=str(session.get('user_id')))
 
 @app.route('/addcustomer', methods=['GET','POST'])
 def add_customer():
@@ -319,7 +333,7 @@ def cash_sheet(user_id):
 		#tot = Cash.query(func.sum(Cash.cash001)).filter_by(user_id=user_id).first()
 		for cash in usercashes:
 			if cash.cash001!='':
-				cash001=cash001+int(cash.cash001)
+				cash001=cash001+cash.cash001
 			if cash.cash002!='':
 				cash002=cash002+cash.cash002
 			if cash.cash005!='':
@@ -335,7 +349,7 @@ def cash_sheet(user_id):
 			if cash.cash200!='':
 				cash200=cash200+cash.cash200
 		daily_total=cash001*1+cash002*2+cash005*5+cash010*10+cash020*20+cash050*50+cash100*100+cash200*200
-		return render_template('casheet.html', user=session.get('user'),usercashes=usercashes, dailycash=DailyUserCash(cash001,cash002,cash005,cash010,cash020,cash050,cash100,cash200,daily_total), 	day=date.today())
+		return render_template('casheet.html', user=session.get('user'),usercashes=usercashes, dailycash=DailyUserCash(cash001,cash002,cash005,cash010,cash020,cash050,cash100,cash200,daily_total),day=date.today())
 
 class DailyUserCash:
 	def __init__(self, cash001, cash002, cash005, cash010, cash020, cash050, cash100, cash200, daily_total):
@@ -413,6 +427,44 @@ def new_row():
 def print_casheet():
 	user_id=session.get('user_id')
 	data = Cash.query.filter_by(user_id=user_id	, vault=0).all()
+	#create a cashvault obj
+	cashvault=Cashvault(date_vault=date.today(), total_vault=0,user_id=user_id)
+	db.session.add(cashvault)
+	db.session.commit()
+	tot=0
+	cash001=0
+	cash002=0
+	cash005=0
+	cash010=0
+	cash020=0
+	cash050=0
+	cash100=0
+	cash200=0
+	daily_total=0
+	for cash in data:
+		if cash.cash001!='':
+				cash001=cash001+cash.cash001
+		if cash.cash002!='':
+			cash002=cash002+cash.cash002
+		if cash.cash005!='':
+			cash005=cash005+cash.cash005
+		if cash.cash010!='':
+			cash010=cash010+cash.cash010
+		if cash.cash020!='':
+			cash020=cash020+cash.cash020
+		if cash.cash050!='':
+			cash050=cash050+cash.cash050
+		if cash.cash100!='':
+			cash100=cash100+cash.cash100
+		if cash.cash200!='':
+			cash200=cash200+cash.cash200
+		flash(cashvault.id)
+		Cash.query.filter_by(id=cash.id).update(dict(vault=cashvault.id))
+		db.session.commit()
+		daily_total=cash001*1+cash002*2+cash005*5+cash010*10+cash020*20+cash050*50+cash100*100+cash200*200
+	Cashvault.query.filter_by(id=cashvault.id).update(dict(total_vault=daily_total))
+
+	#write file
 	data_list = [to_dict(item) for item in data]
 	df = pd.DataFrame(data_list)
 	filename = app.config['UPLOAD_FOLDER']+"/Foglio_Cassa_"+str(session.get('user'))+"_"+str(date.today())+".xlsx"
