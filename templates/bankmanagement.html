@@ -3,41 +3,26 @@
 {% block content %}
 
 <div class='payment'>
-       <h1>Lista Completa Pagamenti</h1>
-<!--         <table class='list-tab'>
-            <tr><th>Id Receipt</th><th>Data</th><th>ID Customer</th><th>Description</th><th>Vault</th><th>Deposit</th><th>Cassiere</th><th>Tipo</th><th>Totale</th>
-        {% for payment in payments %}     
-            <tr>
-                    <td>{% for r in payment['receipt'] %} {{r.id}}</td>
-                    <td>{{r.date_issue}} {% endfor %}</td>
-                    <td><b>{{ payment['customer_id'] }}</td>           
-                    <td>{% for r in payment['receipt'] %} {{r.description}}{% endfor %}</td>              
-                    <td>{% for c in payment['cash'] %} {{c.vault}} </td><td>{{c.deposit}} {% endfor %} </td>
-                    <td>{{ payment.user_id}}</td>
-                    <td>{{ payment['type_card'] }}</td>
-                    <td>{{ payment['total'] }}</td>                               
-            </tr>
-        {% endfor %} 
-        </table> -->
-        <br>
-        <br>
-         <table class='list-tab'>
-            <tr><th>Id Receipt</th><th>Data</th><th>ID Customer</th><th>Description</th><th>Vault</th><th>Deposit</th><th>Cassiere</th><th>Tipo</th><th>Totale</th>
+    <h1>Lista Completa Pagamenti</h1>
+    <br>
+    <br>
+     <table class='list-tab'>
+        <tr><th>Id Receipt</th><th>Data</th><th>ID Customer</th><th>Description</th><th>Vault</th><th>Deposit</th><th>Cassiere</th><th>Tipo</th><th>Totale</th>
         {% for cash in cashes %}     
-            <tr>
-                <td>{% with p = cash['payment'] %} {{ p.id }} </td>
-                    <td>{% for r in p['receipt'] %} {{ r.date_issue }} </td>
-                    <td><b>{{p.customer_id}}</td>
-                    <td>{{r.description}}{% endfor %}</td>     
-                    <td>{% for c in p['cash'] %} {{c.vault}}</td>
-                    <td>{{c.deposit}} {% endfor %}</td>
-                    <td>{{ p.user_id}}</td>
-                    <td>{{ p.type_card }}</td>
-                    <td>{{ (p.total)|round(2) }} {% endwith %}</td>
+        <tr>
+            <td>{% with p = cash['payment'] %} {{ p.id }} </td>
+                <td>{% for r in p['receipt'] %} {{ r.date_issue }} </td>
+                <td><b>{{p.customer_id}}</td>
+                <td>{{r.description}}{% endfor %}</td>     
+                <td>{% for c in p['cash'] %} {{c.vault}}</td>
+                <td>{{c.deposit}} {% endfor %}</td>
+                <td>{{ p.user_id}}</td>
+                <td>{{ p.type_card }}</td>
+                <td>{{ (p.total)|round(2) }} {% endwith %}</td>
 
-            </tr>
-        {% endfor %} 
-        </table>
+        </tr>
+    {% endfor %} 
+    </table>
 </div>
 
 <div>

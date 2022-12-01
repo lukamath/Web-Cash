@@ -258,12 +258,19 @@ def add_user():
 
 @app.route('/bankmanagement', methods=['GET','POST'])
 def bank_management():
+	total_deposit=0
 	if request.method=='POST':
-		#payments=Payment.query.all()
-		cashes=Cash.query.filter_by(vault=True).all()
+		#cashes=Cash.query.filter_by(deposit=False).all()
+		cashdeposit=Cashdeposit(date_deposit=date.today(), total_deposit=total_deposit, user_id=session.get('user'))
+		db.session.add(cashdeposit)
+		db.session.commit()
+		cashes=Cash.query.filter_by(deposit=False).all()
+		for cash in cashes:
+			Cash.query.filter_by(id=cash.id).update(dict(deposit=cashdeposit.id))	
 	else:
-		#payments=Payment.query.all()
-		cashes=Cash.query.filter_by(vault=True).all()
+		#cashes=Cash.query.filter_by(deposit=False).all()
+		cashes=Cash.query.all()
+	db.session.commit()
 	return render_template('bankmanagement.html', cashes=cashes, user_id=str(session.get('user_id')))
 
 @app.route('/addcustomer', methods=['GET','POST'])
