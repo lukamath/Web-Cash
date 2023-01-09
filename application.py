@@ -292,11 +292,25 @@ def add_customer():
 	else:
 		return render_template('newcustomer.html')
 
-@app.route('/liststudents')
+@app.route('/liststudents', methods=['GET','POST'])
 def list_students():
-	customers=Customer.query.all()
-	return render_template('liststudents.html', customers=customers)
+	if request.method=='POST':
+	    keysearch=request.form['srchsurname']
+	    customers=Customer.query.filter_by(surname=keysearch).all()
+	    return render_template('liststudents.html', customers=customers)
+	else:
+		customers=Customer.query.all()
+		return render_template('liststudents.html', customers=customers)
 
+@app.route('/search', methods=['GET','POST'])
+def search():
+# 	if request.method=='POST':
+# 	    keysearch=request.form['srchsurname']
+# 	    customer=Customer.query.filter_by(surname=keysearch).first()
+# 	    return redirect(url_for('add_payment',customer_id=customer.id))
+# 	else:
+	return redirect(url_for('list_students'))
+	    
 @app.route('/listpayments')
 def list_payments():
 	payments=Payment.query.all()
@@ -311,10 +325,6 @@ def list_receipts():
 def list_users():
 	users=User.query.all()
 	return render_template('listusers.html', users=users)
-
-@app.route('/search', methods=['GET','POST'])
-def search():
-	return render_template('search.html')
 
 @app.route('/listcashes', methods=['GET','POST'])
 def list_cashes():
